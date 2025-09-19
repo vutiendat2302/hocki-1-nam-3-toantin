@@ -1,0 +1,117 @@
+---
+title: "Lý thuyết tuần 3"
+author: "Nguyễn Hiền Trang"
+date: "2025-09-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+#KTC, KD gt 1 mau, 2 mau va tuong quan tuyen tinh
+#I. KTC và Kiểm định giả thiết 1 mẫu
+#1. Kiềm định giả thiệt về giá trị trung bình
+#Già sử chiều cao cùa một số sinh viên tuân theo phân phối chuân.
+chieucao <- c(164,163,160,162,165,155,175,164,159,171,
+                168,158,153,162,154,174,169,158)
+chieucao
+shapiro.test (chieucao) #KD tinh chuan
+#ULĐ, ULK/KTC 99%, Kiềm định xem chiều cao TB của sv có bằng 165
+#hay không, với mức ý nghĩa 1%?
+t.test(chieucao, mu = 165, conf.level = 0.99)
+var(chieucao)
+
+#Ước lượng điểm của chiều cao tb của sv là 163
+#ULK/KTC 99% 
+#2. Phân phối chuẩn, phuơng sai đã biết #sử dụng hàm z. test trong gói lệnh BSDA
+install.packages("BSDA")
+library(BSDA)
+z.test(chieucao, mu = 168, sigma.x = 0.5) 
+
+#TH ko tuân theo pp chuẩn
+wilcox.test(chieucao, mu = 165)
+
+#3. Kiểm định cho tỷ lệ
+#Trong một nghiên cứu có 69 nữ và 31 nam
+#Như vậy tỉ lệ nữ là 0.69. Kiểm định xem tỉ lệ này có thật sự khác vớitir lệ 0.5 hay không?
+?prop.test
+prop.test(69, 100, 0.6) #k,n,p: k/n là ước lượng điểm cho tỷ lệ
+#ƯLD cho tỷ lệ là 0.69. ULK/KTC 95% cho tỷ lệ là ( 0.5885509, 0.7766330)
+#gọi p là tỷ lệ nữ
+#bt: H0: p = 0.6 với H1: p!=0.6
+#do p-value = 0.08273 > 0.05 nên chưa đủ cơ sở để bác bỏ H0
+#KL: với myn 5%, chưa đủ cơ sở để nói tỷ lệ nữ khác 0.6
+
+#II.KD 2 mau
+#1. So sánh 2 giá trị trung bình
+set.seed(1)
+(x <- rnorm(100,165,5)) #bnn X ~ N(165, 5^2) được mô phỏng
+set.seed(21)
+y <- rnorm(110, 163,5.5)
+shapiro.test(x)
+shapiro.test(y)
+t.test(x,y) #X,Y độc lập
+#ƯLD của X,Y chính là gttb mẫu của X là 165.5444 và Y là 163.2910
+#KTC 95% CHO EX-EY LÀ: (0.8618252 3.6451189)
+#H0: EX - EY = 0 với H1: EX - EY != 0
+#Do p-value = 0.001633 < 0.05 nên bác bỏ H0
+#KL: Với myn 5%, có cơ sở để nới gttb của X khác Y
+t.test(x,y, alt="greater", conf.level = 0.99)
+#BT: H0: EX = EY với H1: EX > EY
+#Do p-value = 0.0008164 < 0.01 nên bác bỏ H0
+#KL: Với myn 1% . có cơ sở để nới gttb của x lớn hơn gttb của Y
+t.test(x,y, var.equal = TRUE) #giả sử phương sai bằng nhau
+ 
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r}
+#2. So sánh 2 giá trị trung bình khi mẫu cho dưới dạng từng cặp
+x <- c(1.83, 0.50, 1.62, 12.48, 1.68, 1.88, 1.55, 3.06, 1.30) 
+y <- c(0.878, 0.647, 0.598, 2.05, 1.06, 1.29, 1.06, 3.14, 1.29)
+#Chua biết phân phôi: wi cox. test
+wilcox.test(x, y, paired = TRUE)
+wilcox.test(x, y, paired = TRUE, alternative = "greater")
+#Nêu dùng t.test, mẫu cần có pp chuẩn
+#Kiếm tra pp chuân: shapiro.test (x)
+shapiro.test(x)
+shapiro.test(y)
+t.test(x, y, paired = TRUE, alt = "greater") #kđ hai mẫu không độc lập
+```
+
+
+```{r}
+#3.So sánh 2 tỷ lệ
+#một nghiên cứu 
+#Nhóm A: n1 = 200 bệnh nhân được điều trị:
+#Nhóm B: n2 = 150 bệnh nhận không được điều trị
+#Sau 2 năm theo dõi: nhóm A có k1 = 15 người gãy xuong;
+#nhóm B có k2 = 25 người gãy xương
+#Kiêm định ty lệ gãy xương khi được điều trị và ko được điều trị #có thực sự khác nhau hay ko?
+gayxuong <- c(7,25) #k = (k1, k2)
+benhnhan <- c(200,150) #n = (n1, n2)
+prop.test (gayxuong, benhnhan, alt = "less") #(k, n)
+#Gọi p1 và p1 lần lượt là tỷ lệ gãy xương của nhóm điều trị và không điều trị
+#Bt: H0: p1=p2 , H1: p1 != P2
+prop.test(gayxuong, benhnhan, alt = "less")
+#Bt: H0: p1=p2 , H1: p1 < P2
+#Do p-value = 2.649 * 10^{-5} < 0.1 nên bác bỏ H0
+#KL: Với myn 10%, có cơ sở để nói tỷ lệ gãy xương của nhóm đt thấp hơn nhóm ko điều trị, hay có thể nói việc đtri có hiệu quả.
+prop.test(gayxuong, benhnhan, alt = "less", conf.level = 0.9)
+
+#4.So sánh nhiều tỷ lệ
+#Số hsg/ Số hs: Tỉnh A: 45/120, Tỉnh B: 79/200,Tỉnh C: 20/90
+hsg <- c(45,79,20) #k = (k1,k2,k3)
+hs <- c(129, 200, 90) #n=(n1,n2,n3)
+prop.test(hsg,hs) #H0: p1=p2=p3 với H1: ngưuocj lại
+#p1,p2,p3 lần lượt là tỷ lệ hsg của tỉnh A,B,C
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
