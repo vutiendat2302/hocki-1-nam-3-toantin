@@ -1,0 +1,218 @@
+---
+title: "Bài tập 1"
+output: html_document
+date: "2025-09-18"
+---
+
+# Bài 1:
+
+### a
+
+```{r}
+x = c(1:9)
+
+y = c(1.5, 2.3 ,3.2 , 4.6, 5.4, 6.6, 7.6, 8.6, 9.1)
+
+x
+y
+
+print(paste("Độ dài vector x là: ", length(x)))
+cat("Độ dài vector y là: ", length(y), "\n")
+
+cat("tổng của 2 vector: ", x + y)
+cat("hiệu của 2 vector: ", x - y)
+cat("tích của 2 vector: ", x * y)
+cat("chuẩn của x: ", sqrt(sum(x^2)))
+cat("Chuẩn của y: ", sqrt(sum(y^2)))
+```
+
+### b
+
+```{r}
+y[c(1,3,5)]
+x[-c(4,5,6)]
+```
+
+### c
+
+```{r}
+?prod
+print(prod(1:7))
+x
+a = prod(x[-length(x)])
+x[length(x)] = a
+x
+
+y[2] = 99
+y[7] = 199
+y
+```
+
+### d
+
+```{r}
+?round
+y
+y = round(y, digits = 0)
+
+y
+
+```
+
+# Câu 2:
+
+### a
+
+```{r}
+?matrix
+matrix1 = c(1,3,2,8,2,6,4,7,1,5,3,5,3,4,2,1)
+matrix2 = c(1,4,1,4,2,1,7,6,3,5,8,3,4,3,9,7)
+
+matrix1 = matrix(matrix1, nrow = 4, ncol = 4, byrow = T )
+matrix1
+
+matrix2 = matrix(matrix2, byrow = T, nrow = 4)
+matrix2
+
+rownames(matrix1) = c("X", "Y", "Z", "T")
+colnames(matrix1) = c("A", "B", "c", "d")
+matrix1
+
+```
+
+### b
+
+```{r}
+colSums(matrix1)
+apply(matrix1, 1, sum)
+apply(matrix1, 2, sum)
+rowSums(matrix1)
+
+colMeans(matrix1)
+apply(matrix1, 2, mean)
+
+
+
+
+```
+
+### c
+
+```{r}
+matrix1[2, -3]
+```
+
+### d
+
+```{r}
+vectorD = matrix1[c(1,2), ]
+matrix3 = matrix(vectorD, nrow = 2, ncol = 4, byrow = F)
+matrix3
+
+vectorE = matrix(matrix2[, -3], nrow = 4, ncol = 3)
+vectorE
+
+
+```
+
+### e
+
+```{r}
+t(matrix1)
+solve(matrix1)
+
+
+
+
+```
+
+
+### f
+```{r}
+eigen(matrix1)
+eigen(matrix1)$value
+
+det(matrix2)
+```
+
+
+### g
+```{r}
+solve(matrix1) * t(matrix2)
+```
+```{r}
+z = solve(matrix1)*(matrix1 + matrix2)
+z
+```
+
+### h
+```{r}
+?upper.tri
+?lower.tri
+
+g <- matrix1
+g[lower.tri(g)] <- t(a)[lower.tri(matrix1)]
+g
+
+g[is.na(g)] <- 0 
+eigen(g)$values   # giá trị riêng
+all(eigen(g)$values > 0) 
+```
+
+### j
+```{r}
+# 1. Ma trận trực giao (orthogonal matrix) là gì?
+# 
+# Một ma trận 
+# 𝑄
+# ∈
+# 𝑅
+# 𝑛
+# ×
+# 𝑛
+# Q∈R
+# n×n
+#  được gọi là trực giao nếu:
+# 
+# 𝑄
+# 𝑇
+# 𝑄
+# =
+# 𝐼
+# (hoặc tương đương 
+# 𝑄
+# 𝑇
+# =
+# 𝑄
+# −
+# 1
+# )
+# Q
+# T
+# Q=I(hoặc tương đương Q
+# T
+# =Q
+# −1
+# )
+# 
+# 👉 Hiểu nôm na: các cột (hoặc hàng) của ma trận trực giao là các vector trực chuẩn (orthonormal vectors):
+# 
+# Vuông góc với nhau.
+# 
+# Chuẩn (norm) bằng 1.
+h = (1/det(matrix2)) * matrix2
+
+h
+
+I_check <- round(t(h) %*% h, 5)   # làm tròn để tránh sai số số học
+print("t(H) %*% H = ")
+print(I_check)
+
+if (all.equal(I_check, diag(nrow(matrix2))) == TRUE) {
+  print("H là ma trận trực giao")
+} else {
+  print("H KHÔNG phải là ma trận trực giao")
+}
+
+```
+

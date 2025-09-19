@@ -1,0 +1,241 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Chương 1: Các kiến thức cơ bản về R, vector, ma trận
+
+**1. Kiến thức:**
+
+a\. Nhập dữ liệu vào trong R:
+
+\- Các kiểu nhập: vector số nguyên, vector chuỗi, vector logic
+
+**C1**: nhập tay như bình thường,
+
+```{r}
+a <- c(1,2,3,4,5)
+b <- c("Apple", "Checrry")
+c <- c(T, F, T)
+a
+b
+c
+```
+
+**C2:** Đối với dãy số liên tiếp, nếu số nguyên sử dụng :, hoặc sử dụng hàm seq, rep(hàm này là hàm lặp lại)
+
+```{r}
+a = c(1:10)
+a
+?seq
+b = seq(from = 1, to = 10, by = 0.5)
+b
+b = seq(along.with = c) # Lấy độ dài dãy số nguyên bằng với độ dài của dãy  chuyền vào
+b
+?rep
+a = rep(b, times = 2, each = 2)
+a
+b = rep(1:4, c(2,1,1,2))
+b
+```
+
+**C3**: Nhập dữ liệu từ file CSV
+
+có file csv và đã install thư viện readr
+
+*Cách cài thư viện*
+
+```{r}
+install.packages("readr")
+library(readr)
+?read.csv
+data <- read.csv("F:\\Download\\Book1.csv", header = T) #FIle phải có đuôi csv mới đọc được, với lại lưu trực tiếp trên máy hoặc phải đổi
+data
+```
+
+**C4**: Dùng dữ liệu trên R studio
+
+```{r}
+?data
+data() # Các bộ dữ liệu có sẵn trên R (data set)
+data(sleep)
+head(sleep)
+
+data(iris) 
+head(iris)
+```
+
+**2. Các cách lấy ra phần tử trong R**
+
+```{r}
+#a. Lấy một phần tử
+x = c(1: 10)
+x
+x[2]
+x[5]
+# Lấy nhiều phần tử
+x[c(1,2,3,4,5)]
+
+# Loại bỏ phần tử 
+x[-4] # Thêm dấu trừ đằng trước là được
+```
+
+
+## Loại bỏ giá trị null trong R
+```{r}
+x = c(1,2,NA, 32,3243)
+x
+g <- na.omit(as.vector(x)) 
+g
+
+# hoặc chúng ta có thể thay giá trị null = 0 nếu trong ma trận để tính toán
+g[is.na(g)] <- 0 
+```
+
+
+### 3. **Ma trận**
+```{r}
+#1. Hàm để nhập ma trận là matrix
+?matrix
+# Cần có data là một vector, sẽ xắp sếp theo hàng ko byrow, số hàng, cột, nrow, ncol
+A <- matrix(1:9, nrow = 3, ncol = 3)
+print(A)
+
+# Đổi tên hàng, tên cột ma trận:
+rownames(A) = c("x" , "y", "z")
+rownames(A)[1] = c("COn cho")
+A
+colnames(A) <- c("A", "B", "D") 
+colnames(A)[1] <- "Trừ một"
+A
+# Truy cập phần tử:
+A[1, 2]     # phần tử hàng 1, cột 2
+A[ , 2]     # toàn bộ cột 2
+A[2, ]      # toàn bộ hàng 2
+# các phép toán cơ bản:
+# Tạo 2 ma trận 2x2
+M1 <- matrix(c(1, 2, 3, 4), 2, 2)
+M2 <- matrix(c(5, 6, 7, 8), 2, 2)
+
+M1 + M2      # cộng
+M1 - M2      # trừ
+M1 * M2      # nhân từng phần tử (Hadamard)
+M1 %*% M2    # nhân ma trận
+t(M1)        # chuyển vị
+
+# Các hàm quan trọng
+dim(A)        # kích thước (hàng, cột)
+nrow(A)       # số hàng
+ncol(A)       # số cột
+diag(3)       # ma trận đơn vị 3x3
+diag(A)       # lấy đường chéo chính
+det(A)        # định thức
+solve(A)      # nghịch đảo (nếu khả nghịch)
+eigen(A) # Giá trị riêng và vector riêng
+
+# Kết hợp ma trận:
+?cbind
+?rbind
+
+#cbind: ghép cột
+#rbind: ghép hàng
+
+cbind(c(1,2,3), c(4,5,6))
+
+
+
+```
+#### a. Các hàm ma trận cơ bản trong R:
+```{r}
+# Tính tổng các phần tử theo hàng cột, giá trị trung bình, ...
+rowSums(A)
+colSums(A)
+rowMeans(A)
+colMeans(A)
+
+?apply # có thể làm tất cả
+apply(A, 1, sum) #1, 2 để phân biệt hàng với cột, 1 là hàng, 2 là cột
+apply(A, 2, mean)
+
+# Hàm chuyển vị ma trận
+t(A)
+# Hàm nghịch đảo ma trận
+solve(A) # Lỗi nếu det(A) = 0
+
+# eigen: tính vecto riêng
+eigen(A)
+
+# Giá trị riêng; eigen(data)$value
+eigen(A)$value
+
+# Định thức của ma trận:
+det(A)
+
+# ma trận tam giác dưới:
+lower.tri(A)
+# ma trận tam giác trên 
+upper.tri(A)
+
+(m2 <- matrix(1:20, 4, 5))
+lower.tri(m2)
+
+# Cách xác định một ma trận có xác định dương hay không là các giá trị riêng của nó đều lớn hơn 0
+all(eigen(A)$value > 0)
+
+```
+
+
+
+### 4. In text kèm phần tử trong R:
+```{r}
+#1. print: dùng để in trên một dòng, chỉ hỗ trợ in text, nếu muốn in thêm kiểu hàm có giá trị cần dùng 
+# paste()  với print
+
+print(paste("Độ dài vecto x:", length(x)))
+
+#2. cat: dùng với cả chữ và số, hỗ trợ xuống dòng
+cat("Độ dài vector x:", length(x), "\n")
+
+```
+### 5. Các hàm cơ bản trong R:
+```{r}
+#1. prod: Hàm dùng để tính tích các phần tử trong một vector
+prod(c(1:7))
+
+#2. round: Hàm làm tròn
+x = c(1.23244, 923.3249234)
+x
+round(x, digits = 2)
+```
+
+
+# Chương 2: Xác suất, thống kê cơ bản
+```{r}
+#---------------------------
+#3. Cách sử dụng dữ liệu trong R
+data() # Xem các data set
+
+#Sử dụng bộ dữ liệu nào mình sẽ lấy tên của bộ dữ liệu đó
+hills
+View(hills)
+head(hills) # Xem 5 dòng đầu tiên
+# Cách chích suất các cột trong R
+a = hills$dist
+a
+a = hills[, 1] # Kiểu như ma trận, lấy hàng nào cột nào đó
+a
+a = hills[["dist"]] # Lấy trực tiếp theo tên luôn
+
+#----------
+# Hàm apply()
+?apply
+# Dùng cho ma trận, để tính mean, sd, sum các hàng, cột...
+apply(hills, 2, mean)
+apply(hills, 2, sd)
+apply(hills, 2, sum)
+
+# Nếu ta dùng cột đơn t sẽ dùng các hàm sum, sd, mean
+sd(a)
+mean(a)
+sum(a)
+```
