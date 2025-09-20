@@ -1,0 +1,287 @@
+---
+title: "BTVN TKNNC buổi 3"
+author: "Trần Đức Kiên 23000131 K68A2"
+date: "2025-09-20"
+output: html_document
+---
+
+Câu 1:
+
+{r}
+# Gọi X là chiều cao của trẻ mới được sinh ra trong một tuần tại một nhà hộ
+# sinh
+x <- c(49, 50, 45, 51, 47, 49, 48, 54, 53, 55, 45, 50, 48)
+t.test(x, mu = 50)
+# Bài toán: H0: EX = 50
+#           H1: EX != 50
+# Do p-value = 0.6042 > 0.05 nên chưa bác bỏ H0
+# KL: Với mức ý nghĩa 5%, ta có thể nói chiều cao trung bình của trẻ mới sinh bằng 50 cm
+
+	One Sample t-test
+
+data:  x
+t = -0.53241, df = 12, p-value = 0.6042
+alternative hypothesis: true mean is not equal to 50
+95 percent confidence interval:
+ 47.64969 51.42723
+sample estimates:
+mean of x 
+ 49.53846 
+ 
+Câu 2:
+
+{r}
+# Gọi X là số dặm anh ta đi được mỗi ngày
+x <- c(5.3, 4.5, 4.8, 5.1, 4.3, 4.8, 4.9, 4.7)
+wilcox.test(x, mu = 5, alternative = "less")
+# Bài toán: H0: EX = 5
+#           H1: EX < 5
+# Do p-value = 0.07001 > 0.05 nên chưa bác bỏ H0
+# KL: Với mức ý nghĩa 5%, ta có thể nói mỗi ngày anh ta đạp không ít hơn 5 dặm
+
+Wilcoxon signed rank test with continuity correction
+
+data:  x
+V = 7, p-value = 0.07001
+alternative hypothesis: true location is less than 5
+
+Câu 3: 
+
+{r}
+# Gọi p là tỷ lệ sinh viên cao trên 170cm
+prop.test(68, 200, 0.4)
+# Bài toán : H0: p = 40%
+#            H1: p != 40%
+# Do p-value = 0.09694 > 0.05 nên chưa bác bỏ H0
+# KL: Với mức ý nghĩa 5%, ta chưa thể nói tỷ lệ sinh viên cao trên 170cm khác 40%
+
+1-sample proportions test with continuity correction
+
+data:  68 out of 200, null probability 0.4
+X-squared = 2.7552, df = 1, p-value = 0.09694
+alternative hypothesis: true p is not equal to 0.4
+95 percent confidence interval:
+ 0.2755772 0.4106806
+sample estimates:
+   p 
+0.34 
+
+Câu 4: 
+
+(i)
+
+{r}
+d <- cars$dist
+# Kiểm tra dist có tuân theo phân phối chuẩn không
+shapiro.test(d)
+# Do p-value = 0.0391 < 0.05 nên bác bỏ giả thuyết dist tuân theo phân phối chuẩn
+wilcox.test(d, mu = 45, alternative = "greater", conf.level = 0.90)
+# Bài toán : H0: E(D) = 45
+#            H1: E(D) > 45
+# Do p-value = 0.8493 > 0.1 nên chưa bác bỏ H0
+# KL: Với mức ý nghĩa 5%, ta chưa thể nó igiá trị trung bình của khoảng cách dừng - “dist” lớn hơn 45
+
+Shapiro-Wilk normality test
+
+data:  dist
+W = 0.95144, p-value = 0.0391
+
+
+	Wilcoxon signed rank test with continuity correction
+
+data:  dist
+V = 531, p-value = 0.8493
+alternative hypothesis: true location is greater than 45
+
+(ii)
+
+{r}
+k <- length(which(cars$speed < 13))
+n <- length(cars$speed)
+# Gọi Tỷ lệ số xe có tốc độ - “speed” nhỏ hơn 13 trên tổng số xe k/n = p
+prop.test(k, n, 0.4, alternative = "greater", conf.level = 0.98)
+# Bài toán: H0: p = 0.4
+#           H1: p > 0.4
+# Do p-value = 0.903 > 0.02 nên chưa bác bỏ H0
+# KL: VỚi mức ý nghĩa 2%, ta chưa thể kết luận rằng tỷ lệ số xe có tốc độ nhỏ hơn 13 lớn hơn 0.4.
+  
+  	1-sample proportions test with continuity correction
+
+data:  k out of n, null probability 0.4
+X-squared = 1.6875, df = 1, p-value = 0.903
+alternative hypothesis: true p is greater than 0.4
+98 percent confidence interval:
+ 0.1787247 1.0000000
+sample estimates:
+  p 
+0.3 
+
+
+Câu 5:
+
+{r}
+# Gọi x1, x2 lần lượt là sản lượng lúa mì, tính bằng tạ/ha của các mảnh ruộng đã bón lót 50 và 100 đơn vị đạm trên một hécta.
+x1 <- c(47.2, 43.1, 35.7, 47.0, 45.7, 42.6, 46.7, 42.3)   # 50 đơn vị
+x2 <- c(47.9, 48.9, 43.5, 53.1, 50.8, 46.1, 41.1, 43.0, 41.0, 48.5, 47.7) # 100 đơn vị
+shapiro.test(x1)
+#Do p-value = 0.06933 > 0.05 nên có thể nói x1 tuân theo phân phối chuẩn
+shapiro.test(x2)
+#Do p-value = 0.629 > 0.05 nên có thể nói x2 tuân theo phân phối chuẩn
+# Bài toán : H0: E(X1) = E(X2)
+#                E(X1) < E(X2)
+t.test(x1, x2, alternative = "less")
+# Do p-value = 0.07618 > 0.05 nên ta chưa thể bác bỏ H0
+# KL: với MYN 5%, ta không thể kết luận rằng bón lót 100 đơn vị đạm cho năng suất cao hơn bón lót 50 đơn vị đạm
+
+Welch Two Sample t-test
+
+data:  x1 and x2
+t = -1.5054, df = 15.479, p-value = 0.07618
+alternative hypothesis: true difference in means is less than 0
+95 percent confidence interval:
+      -Inf 0.4413694
+sample estimates:
+mean of x mean of y 
+ 43.78750  46.50909 
+
+
+Câu 6:
+
+{r}
+# Gọi A, B lần lượt là số khách trung bình mà hai tiếp viên A và B phục vụ của nhà hàng phục vụ trong mỗi ngày.
+a <- c(42, 36, 58, 27, 48, 85, 38, 44, 62)
+b <- c(53, 48, 65, 41, 57, 49, 74, 49, 56)
+shapiro.test(a)
+# p-value = 0.4498 > 0.05 nên có thể nói A tuân theo phân phối chuẩn
+shapiro.test(b)
+# p-value = 0.5879 > 0.05 nên có thể nói Bs tuân theo phân phối chuẩn
+# Bài toán : H0: E(A) = E(B)
+#            H1: E(A) != E(B)
+t.test(a,b, paired = TRUE)
+# do p-value = 0.3926 > 0.05 nên chưa thể bác bỏ H0
+# KL: Với MYN 5%, ta chưa thể kết luận rằng lượng khách trung bình mà hai tiếp viên A và B phục vụ khác nhau
+
+Paired t-test
+
+data:  a and b
+t = -0.90363, df = 8, p-value = 0.3926
+alternative hypothesis: true mean difference is not equal to 0
+95 percent confidence interval:
+ -20.522274   8.966719
+sample estimates:
+mean difference 
+      -5.777778 
+	  
+Câu 7:
+
+(i)
+
+{r}
+# hệ số tương quan mẫu giữa Sepal.Length và Sepal.Width
+cor(iris$Sepal.Length, iris$Sepal.Width)
+# hệ số tương quan mẫu giữa Petal.Length và Petal.Width
+cor(iris$Petal.Length, iris$Petal.Width)
+
+[1] -0.1175698
+[1] 0.9628654
+
+(ii)
+
+{r}
+# ?cor.test()
+# Bài toán : H0: rho = 0 (không có mối quan hệ tương quan tuyến tính)
+#            H1: rho != 0 (ngược lại)
+cor.test(iris$Sepal.Length, iris$Sepal.Width)
+# Do  p-value = 0.1519 > 0.05 nên chưa thể bác bỏ H0
+# KL: với MYN 5%, ta có thể nói không có tương quan giữa Sepal.Length và Sepal.Width
+
+# Bài toán : H0: rho = 0 (không có mối quan hệ tương quan tuyến tính)
+#            H1: rho != 0 (ngược lại)
+cor.test(iris$Petal.Length, iris$Petal.Width)
+# Do  p-value < 2.2e-16 < 0.05 nên có thể bác bỏ H0
+# KL: với MYN 5%, ta có thể nói có tương quan giữa Petal.Length và Petal.Width
+
+Pearson's product-moment correlation
+
+data:  iris$Sepal.Length and iris$Sepal.Width
+t = -1.4403, df = 148, p-value = 0.1519
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.27269325  0.04351158
+sample estimates:
+       cor 
+-0.1175698 
+
+
+	Pearson's product-moment correlation
+
+data:  iris$Petal.Length and iris$Petal.Width
+t = 43.387, df = 148, p-value < 2.2e-16
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ 0.9490525 0.9729853
+sample estimates:
+      cor 
+0.9628654 
+
+(iii)
+
+{r}
+# mô hình hồi quy tuyến tính của Sepal.Width theo Petal.Width.
+model <- lm(Sepal.Width ~ Petal.Width, data = iris)
+summary(model)
+# Trả lời: Các hệ số trong mô hình hồi quy có thực sự khác 0 không?
+# Bài toán : H0: các hệ số bằng 0
+#            H1: các hệ số khác 0
+# Do p-value của các hệ số của (Intercept) và Petal.Width lần lượt là < 2e-16 và 4.07e-06 < 0.05 nên ta có thể bác bỏ H0
+# KL: với mức ý nghĩa 5%, ta có thể nói các hệ số trong mô hình hồi quy thực sự khác 0
+
+# Trả lời: Phần dư trong mô hình có tuân theo phân phối chuẩn với giá trị trung bình bằng 0 không?
+# Gọi X là phân dư trong mô hình
+x <- residuals(model)
+shapiro.test(x)
+# Bài toán: H0: X tuân theo pp chuẩn
+#           H1: X không tuân theo phân phối chuẩn
+# Do p-value = 0.9793 > 0.05 chưa thê bác bỏ H0
+# Với MYN 5%,ta có thể nói X tuân theo phân phối chuẩn
+t.test(x, mu = 0)
+# Bài toán: H0: EX = 0
+#           H1: EX != 0
+# Do p-value = 1 > 0.05 nên chưa chưa thể bác bỏ H0
+# KL: VỚi MYN 5%, ta có thể nói X tuân theo phân phối chuẩn với giá trị trung bình bằng 0
+
+Call:
+lm(formula = Sepal.Width ~ Petal.Width, data = iris)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.09907 -0.23626 -0.01064  0.23345  1.17532 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  3.30843    0.06210  53.278  < 2e-16 ***
+Petal.Width -0.20936    0.04374  -4.786 4.07e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.407 on 148 degrees of freedom
+Multiple R-squared:  0.134,	Adjusted R-squared:  0.1282 
+F-statistic: 22.91 on 1 and 148 DF,  p-value: 4.073e-06
+
+
+	Shapiro-Wilk normality test
+
+data:  x
+W = 0.99352, p-value = 0.739
+
+
+	One Sample t-test
+
+data:  x
+t = 5.8674e-16, df = 149, p-value = 1
+alternative hypothesis: true mean is not equal to 0
+95 percent confidence interval:
+ -0.06544016  0.06544016
+sample estimates:
+   mean of x 
+1.943112e-17 
