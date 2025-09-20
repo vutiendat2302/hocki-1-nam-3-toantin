@@ -1,0 +1,340 @@
+---
+title: "study3_baitoankiemdinh_hoiquytuyentinhdon"
+author: "VuTienDat"
+date: "2025-09-20"
+output: html_document
+---
+
+# Bài toán kiểm định giả thuyết về trung bình một mẫu
+
+## Phân phối student()
+
+### Trong R, t.test() là hàm dùng để thực hiện kiểm định t (Student’s t-test), chủ yếu dùng để kiểm tra xem trung bình của một hoặc hai nhóm dữ liệu có khác nhau hay không.
+
+### Điều kiện áp dụng:
+
+-   Dữ liệu xấp xỉ phân phối chuẩn, hoặc mẫu đủ lớn (thường \>30) để áp dụng định lý giới hạn trung tâm.
+
+-   Biết hay không biết độ lệch chuẩn của tổng thể: nếu không biết, dùng t.test(); nếu biết thì dùng z-test.
+
+-   Chưa biết độ lệch chuẩn của tổng thể
+
+### - 1 Nhóm
+
+#### t.test(x, mu = value, alternative = "two.sided")
+
+### - 2 Nhóm độc lập
+
+#### t.test(x, y)
+
+### - 2 Nhóm phụ thuộc
+
+#### t.test(x, y, paired = TRUE)
+
+x: vector dữ liệu mẫu. mu: giá trị trung bình theo giả thuyết alternative: kiểu kiểm định: "two.sided" → kiểm tra khác != "less" → kiểm tra nhỏ hơn \< "greater" → kiểm tra lớn hơn \>
+
+------------------------------------------------------------------------
+
+```{r}
+t.test(c(49, 50, 45, 51), mu = 50, alternative = "two.sided")
+```
+
+## **Wilcoxon signed-rank test** (kiểm định Wilcoxon)
+
+-   Đây là **kiểm định phi tham số (non-parametric test)** dùng để **so sánh trung vị (median) của mẫu với một giá trị tham chiếu**.
+
+-   Nó thường được dùng **thay thế cho t-test một mẫu** khi **mẫu nhỏ hoặc dữ liệu không chắc phân phối chuẩn**.
+
+-   Mẫu nhỏ và không tuân theo phân phối chuẩn
+
+-   Nguyên lý:
+
+-   <div>
+
+    -   Tính hiệu giữa mỗi quan sát và giá trị tham chiếu (xi−mux_i - \text{mu}xi​−mu)
+
+    -   Bỏ đi các hiệu = 0
+
+    -   Xếp hạng tuyệt đối của các hiệu còn lại
+
+    -   Gán dấu (+/-) dựa trên hiệu
+
+    -   Tính tổng hạng có dấu → ra **thống kê W**
+
+    -   wilcox.test(distance, mu = 5, alternative = "less")
+
+    </div>
+
+```{r}
+distance <- c(5.3, 4.5, 4.8, 5.1, 4.3, 4.8, 4.9, 4.7)
+wilcox.test(distance, mu = 5, alternative = "less")
+```
+
+## **bài kiểm định về tỷ lệ (proportion test)**.
+
+-   `prop.test()` trong R dùng để **kiểm định giả thuyết về một hoặc nhiều tỷ lệ (proportion)** dựa trên dữ liệu **số lượng thành công / tổng số quan sát**.
+
+-   `prop.test()` là công cụ chuẩn trong R cho **kiểm định tỉ lệ một mẫu hoặc hai mẫu**.
+
+-   <div>
+
+    -   Tỷ lệ sinh viên cao \>170cm
+
+    -   Tỷ lệ người thích một sản phẩm
+
+    -   Tỷ lệ bệnh nhân hồi phục sau điều trị
+
+    </div>
+
+-   Nguyên lý kiểm định:
+
+-   <div>
+
+    -   Tính **tỷ lệ mẫu** p\^=x/n\hat{p} = x/np\^​=x/n
+
+    -   So sánh với **tỷ lệ giả thuyết** p0p_0p0​
+
+    -   Dùng **kiểm định z** hoặc chi: tùy vào mẫu và độ lệch chuẩn​​
+
+    -   `prop.test()` trên thực tế **xấp xỉ kiểm định z** cho tỷ lệ một mẫu khi n đủ lớn.
+
+        Khi `correct = FALSE` và n lớn, kết quả χ² gần như tương đương với **z-test** vì:
+
+    -   Khi `correct = TRUE` (mặc định): **R áp dụng hiệu chỉnh Yates** cho kiểm định χ² một mẫu **để giảm sai số khi n nhỏ**.
+
+    -   3\. Khi nào dùng TRUE/FALSE
+
+        | Trường hợp   | Correct = TRUE    | Correct = FALSE                |
+        |--------------|-------------------|--------------------------------|
+        | n nhỏ (≤30)  | ✅ nên dùng       | ❌ không khuyến nghị           |
+        | n lớn (\>30) | ✅ hoặc ❌ đều ok | ✅ thường dùng để xấp xỉ z-tes |
+
+    </div>
+
+```{r}
+# Dữ liệu
+x <- 68       # số sinh viên cao
+n <- 200      # tổng số sinh viên
+p0 <- 0.4     # tỷ lệ theo giả thuyết
+
+# Kiểm định tỷ lệ hai phía
+prop.test(x, n, p = p0, alternative = "two.sided", correct = FALSE)
+
+```
+
+## `shapiro.test()` là **kiểm định Shapiro-Wilk** trong R.
+
+-   Shapiro-Wilk sử dụng **thống kê W**, được tính dựa trên **bình phương hiệu số giữa dữ liệu và giá trị dự đoán theo chuẩn**.
+
+-   <div>
+
+    -   Trước khi dùng **t-test** hoặc các kiểm định giả thuyết dựa trên phân phối chuẩn.
+
+    -   Nhất là **mẫu nhỏ (n \< 30)**.
+
+    -   Với **mẫu lớn**, CLT làm trung bình mẫu xấp xỉ chuẩn, `shapiro.test()` không bắt buộc.
+
+    -   Nếu cỡ mẫu ≤ 50, ưu tiên dùng Shapiro–Wilk.
+
+    -   Kiểm tra xemm có tuân theo phân phối chuẩn ko
+
+    -   So sánh với mức ý nghĩa 0.05, \> thì là phân phối chuẩn, nhỏ hơn thì không phải
+
+    </div>
+
+## Z - test
+
+-   **Mục đích:** Kiểm định trung bình khi **biết độ lệch chuẩn tổng thể** σ\sigmaσ hoặc kiểm định tỷ lệ với n lớn
+
+-   **Giả định:**
+
+    -   Biết σ hoặc n lớn (cho phép xấp xỉ chuẩn)
+
+### **Tóm tắt bảng so sánh**
+
+| Kiểm định | Kiểm gì | Giả định | Khi dùng | Output |
+|---------------|---------------|---------------|---------------|---------------|
+| t-test | Trung bình | Dữ liệu chuẩn, chưa biết σ | Mẫu nhỏ hoặc lớn | t, df, p-value, CI |
+| Wilcoxon | Trung vị | Không cần chuẩn | Mẫu nhỏ, không chuẩn | W, p-value |
+| Shapiro.test | Phân phối chuẩn | Không | Kiểm tra trước t-test | W, p-value |
+| z-test | Trung bình / Tỷ lệ | Biết σ hoặc n lớn | Mẫu lớn, σ biết | z, p-value |
+
+## Correlation: cor() Hệ số tương quan: **tính hệ số tương quan** giữa hai biến
+
+-   cor(x, y, method = "pearson")
+
+-   <div>
+
+    -   **x, y**: hai vector dữ liệu
+
+    -   **method**: phương pháp tính
+
+    -   `"pearson"` (mặc định) → hệ số tương quan Pearson (tuyến tính)
+
+    -   `"spearman"` → tương quan Spearman (phi tuyến, theo hạng)
+
+    -   `"kendall"` → tương quan Kendall (phi tuyến, theo hạng)
+
+    </div>
+
+    \-
+
+-   Xác định mối quan hệ giữa hai biến:
+
+-   <div>
+
+    -   Hệ số tương quan giúp biết **liệu biến này tăng thì biến kia cũng tăng hay giảm**, và mạnh hay yếu.
+
+    </div>
+
+-   Dự đoán/Ước lượng:
+
+-   <div>
+
+    -   Nếu hai biến có tương quan mạnh (r gần 1 hoặc -1), có thể dùng biến này để **ước lượng biến kia** trong mô hình hồi quy.
+
+    </div>
+
+-   Kiểm tra tính tuyến tính:
+
+    <div>
+
+    -   Hệ số tương quan Pearson kiểm tra **mối quan hệ tuyến tính**
+
+        Hệ số tương quan Spearman/Kendall kiểm tra **mối quan hệ theo hạng**, có thể phi tuyến
+
+    </div>
+
+## Cor.test():**kiểm định ý nghĩa thống kê của hệ số tương quan**, trả về thêm **p-value**.
+
+-   <div>
+
+    -   cor.test(x, y, method = "pearson")
+
+    -   
+
+        # Bài toán : H0: rho = 0 (không có mối quan hệ tương quan tuyến tính)
+
+        # H1: rho != 0 (ngược lại)
+
+    </div>
+
+-   <div>
+
+    ### **3. Kết quả trả về**
+
+    -   `cor` → hệ số tương quan r
+
+        `t` → thống kê t (chỉ với Pearson)
+
+    -   `df` → bậc tự do
+
+    ```         
+    `p-value` → dùng để kiểm định H0: r = 0
+
+    `conf.int` → khoảng tin cậy cho r
+    ```
+
+    </div>
+
+    ## Hồi quy tuyến tính:
+
+    -   <div>
+
+        -   model \<- lm(Sepal.Width \~ Petal.Width, data = iris)
+
+        -   summary(model)
+
+        -   `model` là **object kiểu lm**, chứa thông tin:
+
+            -   Hệ số (coefficients)
+
+                Phần dư (residuals)
+
+                Giá trị fitted (dự đoán)
+
+                Thống kê R², F-statistic
+
+        </div>
+
+-   <div>
+
+    -   Coefficients: Estimate Std. Error t value Pr(\>\|t\|)\
+        (Intercept) 3.428 0.083 41.29 \<2e-16
+
+    -   ***Petal.Width -0.242 0.054 -4.49 1.3e-05***
+
+    </div>
+
+-   <div>
+
+    -   Nếu `Pr(>|t|) < 0.05` → hệ số **có ý nghĩa thống kê**, khác 0
+
+    </div>
+
+-   <div>
+
+    ```         
+    Coefficients:             Estimate Std. Error t value Pr(>|t|)     
+    (Intercept)  3.30843    0.06210  53.278  < 2e-16 *** 
+    Petal.Width -0.20936    0.04374  -4.786 4.07e-06 *** 
+    ---
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1  
+    Residual standard error: 0.407 on 148 degrees of freedom Multiple : Phân bố phần dư
+    R-squared:  0.134,  Adjusted R-squared:  0.1282  : Đánh giá độ phù hợp của mô hình dữ liệu
+    F-statistic: 22.91 on 1 and 148 DF,  p-value: 4.073e-06 : Kiểm định mô hình có ý nghĩa tổng thể
+    ```
+
+    </div>
+
+-   <div>
+
+    -   Lấy dữ liệu từ `lm`
+
+    -   coef(model): Hệ số
+
+    -   fitted(model): Giá trị dự đoán
+
+    -   residuals(model): Phần dư: sai số giữa thực tế và dự đoán, phần dư càng nhỏ, mô hình càng chính xác
+
+    </div>
+
+### Kiến thức bổ sung
+
+```{r}
+(n = length(cars$speed))
+(s = length(cars$speed[cars$speed < 13]))
+(d = length(which(cars$speed < 13)))
+
+# Lấy phần tử: 
+cars$speed[which(cars$speed < 13)]
+cars$speed[cars$speed < 13]
+
+```
+
+-   `which()` dùng để **tìm vị trí (index) của các phần tử thỏa điều kiện TRUE** trong một vector logic.
+
+-   <div>
+
+    -   Đếm số phần tử thỏa điều kiện: length(which(cars\$speed \< 13)))
+
+    -   Lấy giá trị thỏa điều kiện: cars\$speed[which(cars\$speed \< 13)]
+
+    </div>
+
+```{r}
+# 1. Cài gói tinytex
+install.packages("tinytex", repos = "https://cran.rstudio.com/")
+
+# 2. Cài TeX nhẹ
+tinytex::install_tinytex()
+
+# title: "23000111_VuTienDat_Bt_Tuan3"
+# author: "VuTienDat"
+# date: "2025-09-20"
+# output:
+#   pdf_document:
+#     latex_engine: xelatex
+#   html_document: default
+# mainfont: Times New Roman
+```

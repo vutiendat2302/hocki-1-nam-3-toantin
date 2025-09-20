@@ -6,6 +6,18 @@ output: html_notebook
 # Chương 1: Các kiến thức cơ bản về R, vector, ma trận
 
 **1. Kiến thức:**
+- R phân biệt chữ hoa và chữ thường
+- Không đặt tên biến số bằng ký hiệu - | _ Vd: my_object
+-  Hỗ trợ trong R: help(), help(Phương thức, hàm cần tìm hiểu), ?phương thức, hàm cần tìm hiểu
+
+```{r}
+# Sự dụng data_frame(x, y): để ghép 2 cột y, y
+# Chúng ta cũng có thể nhập data trong bảng bằng edit(data.frame())
+data1 = edit(data.frame())
+data1
+
+```
+
 
 a\. Nhập dữ liệu vào trong R:
 
@@ -20,6 +32,16 @@ c <- c(T, F, T)
 a
 b
 c
+
+x <- 5
+
+x == 5
+x != 5
+is.na(x)
+# & (and) | (or) ! (Not)
+
+# dùng edit(data.frame()) để nhập nhanh hơn
+
 ```
 
 **C2:** Đối với dãy số liên tiếp, nếu số nguyên sử dụng :, hoặc sử dụng hàm seq, rep(hàm này là hàm lặp lại)
@@ -65,6 +87,45 @@ data(iris)
 head(iris)
 ```
 
+### b. Xử lý với dữ liệu vào
+```{r}
+data()
+Indometh
+
+
+# Xác định số hàng, số cột
+dim(Indometh)
+
+# Xác định tên các cột
+names(Indometh)
+colnames(Indometh)
+
+table(Indometh$time)
+
+# Kiểm tra với dữ liệu có trống không
+# Loại bỏ các dữ liệu trống trong dữ liệu Indometh
+data1 = na.omit(Indometh)
+data1
+
+# Tách dữ liệu từ dữ liệu gốc với điều kiện
+x = Indometh$time[Indometh$time > 1]
+x
+y = subset(Indometh$time, Indometh$time > 1)
+y
+
+# Nhập dữ liệu ngày tháng 
+# mặc định của date là: yyyy-mm-dd
+
+date1 = as.Date("01/02/06", format = "%d/%m/%y")
+date1
+
+
+```
+
+
+
+
+
 **2. Các cách lấy ra phần tử trong R**
 
 ```{r}
@@ -80,8 +141,8 @@ x[c(1,2,3,4,5)]
 x[-4] # Thêm dấu trừ đằng trước là được
 ```
 
-
 ## Loại bỏ giá trị null trong R
+
 ```{r}
 x = c(1,2,NA, 32,3243)
 x
@@ -92,8 +153,8 @@ g
 g[is.na(g)] <- 0 
 ```
 
-
 ### 3. **Ma trận**
+
 ```{r}
 #1. Hàm để nhập ma trận là matrix
 ?matrix
@@ -120,7 +181,7 @@ M2 <- matrix(c(5, 6, 7, 8), 2, 2)
 M1 + M2      # cộng
 M1 - M2      # trừ
 M1 * M2      # nhân từng phần tử (Hadamard)
-M1 %*% M2    # nhân ma trận
+M1 %*% M2    # nhân 2 với nhau ma trận (AB là dùng cái này chứ ko phải cái * bình thường này đâu nhé)
 t(M1)        # chuyển vị
 
 # Các hàm quan trọng
@@ -145,8 +206,12 @@ cbind(c(1,2,3), c(4,5,6))
 
 
 ```
+
 #### a. Các hàm ma trận cơ bản trong R:
+
 ```{r}
+
+
 # Tính tổng các phần tử theo hàng cột, giá trị trung bình, ...
 rowSums(A)
 colSums(A)
@@ -184,9 +249,8 @@ all(eigen(A)$value > 0)
 
 ```
 
-
-
 ### 4. In text kèm phần tử trong R:
+
 ```{r}
 #1. print: dùng để in trên một dòng, chỉ hỗ trợ in text, nếu muốn in thêm kiểu hàm có giá trị cần dùng 
 # paste()  với print
@@ -197,9 +261,13 @@ print(paste("Độ dài vecto x:", length(x)))
 cat("Độ dài vector x:", length(x), "\n")
 
 ```
+
 ### 5. Các hàm cơ bản trong R:
+
 ```{r}
-#1. prod: Hàm dùng để tính tích các phần tử trong một vector
+#1. prod: Hàm dùng để tính tích các phần tử trong một vector hoặc chúng ta cũng có thể dùng nó để tính giai thừa ví dụ 5!
+prod(5:1)
+
 prod(c(1:7))
 
 #2. round: Hàm làm tròn
@@ -209,33 +277,3 @@ round(x, digits = 2)
 ```
 
 
-# Chương 2: Xác suất, thống kê cơ bản
-```{r}
-#---------------------------
-#3. Cách sử dụng dữ liệu trong R
-data() # Xem các data set
-
-#Sử dụng bộ dữ liệu nào mình sẽ lấy tên của bộ dữ liệu đó
-hills
-View(hills)
-head(hills) # Xem 5 dòng đầu tiên
-# Cách chích suất các cột trong R
-a = hills$dist
-a
-a = hills[, 1] # Kiểu như ma trận, lấy hàng nào cột nào đó
-a
-a = hills[["dist"]] # Lấy trực tiếp theo tên luôn
-
-#----------
-# Hàm apply()
-?apply
-# Dùng cho ma trận, để tính mean, sd, sum các hàng, cột...
-apply(hills, 2, mean)
-apply(hills, 2, sd)
-apply(hills, 2, sum)
-
-# Nếu ta dùng cột đơn t sẽ dùng các hàm sum, sd, mean
-sd(a)
-mean(a)
-sum(a)
-```

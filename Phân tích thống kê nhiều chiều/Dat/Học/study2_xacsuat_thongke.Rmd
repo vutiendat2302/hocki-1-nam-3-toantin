@@ -1,0 +1,156 @@
+---
+title: "study2_xacxuat_thongke"
+output: html_document
+date: "2025-09-20"
+---
+
+# Chương 2: Xác suất, thống kê cơ bản
+
+#### par(mfrow = c(3,2)) #chia khung đồ thị thành 3h, 2c
+
+#### dev.off() #đưa về khung đồ thị ban đầu
+
+```{r}
+#---------------------------
+#3. Cách sử dụng dữ liệu trong R
+data() # Xem các data set
+
+# Chọn mẫu ngẫu nhiên trong R
+?sample()
+#dùng set.sweed() để cố định bộ dữ liệu khi random
+set.seed(12) # số bất kỳ
+sample(1:10, 5)
+
+# Tính giai thừa dùng hàm prod: 
+# ví dụ: 3!
+prod(3:1)
+
+# Tính tổ hợp chập k của n phần tử dùng choose(n, k): C(n,k)
+choose(5, 3)
+
+
+#Sử dụng bộ dữ liệu nào mình sẽ lấy tên của bộ dữ liệu đó
+hills
+View(hills)
+head(hills) # Xem 5 dòng đầu tiên
+# Cách chích suất các cột trong R
+a = hills$dist
+a
+a = hills[, 1] # Kiểu như ma trận, lấy hàng nào cột nào đó
+a
+a = hills[["dist"]] # Lấy trực tiếp theo tên luôn
+
+#----------
+# Hàm apply()
+?apply
+# Dùng cho ma trận, để tính mean, sd, sum các hàng, cột...
+apply(hills, 2, mean)
+apply(hills, 2, sd)
+apply(hills, 2, sum)
+
+# Nếu ta dùng cột đơn t sẽ dùng các hàm sum, sd, mean
+sd(a)
+mean(a)
+sum(a)
+```
+
+### Hàm phân phối nhị phân (Binomial distribution)
+
+C(n, k)\* p\^k \* (1-p)\^(n-k) dbinom(k,n,p)
+
+```{r}
+dbinom(2, 5 , 0.6)
+
+```
+
+### Mô tả bằng biểu đồ hist bằng phân phối nhị phân
+
+rbinom(k,n,p) : lấy dữ liệu mô phỏng hist(data,...) : vẽ biểu đồ
+
+```{r}
+b = rbinom(1000, 20, 0.2)
+hist(b, main = "number of ...")
+```
+
+### Tương tự các hàm phân phối còn lại
+
+### Chúng ta nên tập chung vào hàm phân phối chuẩn trong chương trình dạy
+
+# Phân phối chuẩn
+
+p = 1/(sigma \* sqrt(2pi))*exp(-(x - trung binh)*^2^ /singma\^2))
+
+Bài tập cho hàm phân phối chuẩn:
+
+```{r}
+# Hàm mật độ: dnorm(x, mean, sd)
+dnorm(4, mean = 0, sd = 1)
+#Hàm mật độ f(x) tại x = 4 của 1 bnn X ~ N(0,1)
+dnorm(1:4, 98, 3.2) #X~N(98, 3.2^2)
+x<- (-50:50)/12
+x <- (-50:50)/12
+plot(x, dnorm(x), type = 'l')
+#Vẽ đồ thị hàm mật độ pb chuẩn tắc
+##hàm phân phối/hàm tích lũy: pnorm(q, mean, sd) = P(X<q)
+pnorm(2) # = pnorm(2,0,1):
+#Tìm P(X<2) biết X ~ N(0,1)
+pnorm(3,2,1.1) #P(X<3) biết X~N(2,1.1^2)
+plot(x, pnorm(x), type = "l" , main = "Hàm phân phối")
+#vẽ đồ thị hàm tích lũy pb chuẩn tắc
+##hàm phân vị: qnorm(p,mean,sd): P(X<a) = p. Biết p, 
+?qnorm()
+qnorm(.05/2,0,1) # = qnorm(.05/2,0,1)
+#Tìm a biết P(X<a) = 0.05/2, với X ~ N(0,1)
+qnorm(1-.05/2) #P(X<1.96) = 1 - 0.05/2
+
+##hàm mô phỏng/sinh ngẫu nhiên: rnorm(n,mean, sd): n là số quan sát
+?rnorm() #sinh ngẫu nhiên n giá trị của x tuân theo
+#pp chuẩn: X ~ N(mean, sd^2)
+rnorm(4) #= rnorm(4,0,1): sinh nn 4 gtri của X biết X ~ N(0,1)
+rnorm(10,165,5) #sinh nn 10 gtri về chiều cao của các bạn sv vùng A
+#biết chiều cao của các bạn đó tuân theo pp chuẩn ~ N(165, 5^2)
+set.seed(13) #cố định kết quả của hàm sinh nn
+rnorm(10,100,5)
+set.seed(13)
+rnorm(10,100,5)
+
+#2Quan sát dữ liệu
+#install.packages("MASS)
+library(MASS)
+#help(package = "MASS)
+View(Cars93)
+?Cars93
+head(Cars93)
+data = Cars93[,c("Min.Price", "Price", "Max.Price", "MPG.highway", "Horsepower", "RPM")]
+View(data) #data gồm giá trị về 6 biến của tất cả các xe
+#Dùng tổ chức đồ: hist
+hist(data$Price)
+par(mfrow = c(3,2)) #chia khung đồ thị thành 3h, 2c
+sapply(colnames(data), function(x) {
+  hist(data[[x]], main = x)
+})
+dev.off() #đưa về khung đồ thị ban đầu
+hist(data$Price, freq = FALSE, 
+     xlim = c(0,70), ylim = c(0,70), 
+     xlab="Price", 
+     main = "Histogram of Price")
+#C1: DÙng đồ thị QQ-plot
+dev.off()
+qqnorm(data$Price)
+qqline(data$Price)
+#các điểm phân vị càng gần đường qqline thì pp của biến Price càng gần pp chuẩn
+
+?sapply
+z <- data$Price
+ks.test(z, "pnorm", mean = mean(z), sd = sd(z))
+
+cvm.test(z)
+#cvmTest(z)
+#c.lillieTest
+lillieTest(z)
+#d.Kiểm tra tính chuẩn bằng hàm shapiro.test(): test TK khác,
+shapiro.test(data$Price)
+t.test(sample, mu = 0.5, conf.level = )
+
+```
+

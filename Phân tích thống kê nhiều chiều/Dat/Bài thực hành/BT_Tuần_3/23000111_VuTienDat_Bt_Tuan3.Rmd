@@ -1,0 +1,204 @@
+---
+title: "23000111_VuTienDat_Bt_Tuan3"
+author: "VuTienDat"
+date: "2025-09-20"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document: default
+mainfont: Times New Roman
+---
+
+### Bài 1:
+
+```{r}
+# Gọi x là chiều cao của trẻ mới được sinh ra trong một tuần tại một nhà hộ sinh
+
+x <- c(49, 50, 45, 51, 47, 49, 48, 54, 53, 55, 45, 50, 48)
+# Bài toán: 
+# H0: Ex = 50
+# H1: Ex != 50
+# Do xấp sỉ phân phối chuẩn và chưa biết độ lệch chuẩn của tổng thể: -> dùng t.test
+t.test(x, mu = 50, alternative = "two.sided")
+#Do p-value = 0.6042 > 0.05 nên chưa bác bỏ H0
+#KL: Với mức ý nghĩa 5%, ta có thể nói chiều cao trung bình của trẻ mới sinh bằng 50 cm
+```
+
+### Bài 2:
+
+```{r}
+# Gọi x là số dặm a ta đi được mỗi ngày
+x <- c(5.3, 4.5, 4.8, 5.1, 4.3, 4.8, 4.9, 4.7)
+
+# Bài toán: 
+# H0: Ex = 5
+# H0: Ex < 5
+
+# Do bài toán có n < 30, chưa có độ lệch chuẩn tổng thể -> wilconxon.test
+wilcox.test(x, mu = 5, alternative = "less")
+
+#Do p-value = 0.07001 > 0.05 nên chưa bác bỏ H0'
+#KL: Với mức ý nghĩa 5%, ta có thể nói mỗi ngày anh ta đạp không ít hơn 5 km
+
+```
+
+### Bài 3:
+
+```{r}
+# Gọi p là tỷ lệ sinh viên cao trên 170cm
+# Bài toán: 
+# H0: p = 40%
+# H1: p != 40%
+
+# Do bài toán kiểm định giả thiết tỷ lệ -> prop.test
+prop.test(68, 200, 0.4)
+
+# Do p-value = 0.096494 > 0.05 nên ta chưa bác bỏ H0
+# KL: Với mức ý nghĩa 5%, ta chưa thể nói tỷ lệ sinh viên cao trên 170cm khác 40%
+
+```
+
+### Bài 4:
+
+```{r}
+# Gọi x là khoảng cách của oto
+x = na.omit(cars$dist)
+length(x)
+# a. Với mức ý nghĩa 10%, kiểm định xem giá trị trung bình của khoảng cách dừng- “dist” lớn hơn 45 không? Giải thích các kết quả thu được.
+# Bài toán:
+#H0: Ex = 45
+#H1: Ex > 45
+
+# Kiểm tra tuân theo phân phối chuẩn n > 30 và n <= 50,  shapiro.test(d) kiểm tra xem nó có chuẩn không
+?shapiro.test()
+shapiro.test(x)
+
+#Do p-value = 0.0391 < 0.1 nên bác bỏ giả thuyết dist tuân theo phân phối chuẩn
+# Do không tuân theo phân phối chuẩn -> willcolson
+wilcox.test(x, mu = 45, alternative = "greater", conf.level = 0.90)
+# Bài toán:
+#H0: Ex = 45
+#H1: Ex > 45
+# Độ tin cậy là 90%
+# Do p-value = 0.8493 > 0.1 nên chưa bác bỏ H0
+# Với mức ý nghĩa 5%, ta chưa thể nó igiá trị trung bình của khoảng cách dừng - “dist” lớn hơn 45
+
+# b. Với mức ý nghĩa 2%, kiểm định xem tỷ lệ số xe có tốc độ- “speed” nhỏ hơn 13 trên
+ # tổng số xe có lớn hơn 0.4 không? Giải thích các kết quả thu được
+(n = length(cars$speed))
+(s = length(cars$speed[cars$speed < 13]))
+# Gọi tỷ lệ xe có tốc độ nhỏ hơn 13 trên tổng số xe là p = s/n
+# Bài toán: H0: p = 0.4
+#           H1: p > 0.4
+# Độ tin cậy 98%
+# Bài toán tỷ lệ -> dùng prop
+prop.test(s, n, 0.4, alternative = "greater", conf.level = 0.98)
+
+# Do p-value = 0.903 > 0.02 nên chưa bác bỏ H0
+# KL: VỚi mức ý nghĩa 2%, ta chưa thể kết luận rằng tỷ lệ số xe có tốc độ nhỏ hơn 13 lớn hơn 0.4.
+
+
+```
+
+### Bài 5:
+
+```{r}
+# Gọi x1, x2 lần lượt là sản lượng lúa mì, tính bằng tạ/ha của các mảnh ruộng đã bón lót 50 và 100 đơn vị đạm trên một hécta.
+
+x1 <- c(47.2, 43.1, 35.7, 47.0, 45.7, 42.6, 46.7, 42.3)   # 50 đơn vị
+x2 <- c(47.9, 48.9, 43.5, 53.1, 50.8, 46.1, 41.1, 43.0, 41.0, 48.5, 47.7) # 100 đơn vị
+
+# Kiểm tra xem có tuân theo phân phối chuẩn ko
+shapiro.test(x1)
+#Do p-value = 0.06933 > 0.05 nên có thể nói x1 tuân theo phân phối chuẩn
+
+shapiro.test(x2)
+#Do p-value = 0.629 > 0.05 nên có thể nói x2 tuân theo phân phối chuẩn
+
+# Bài toán : H0: E(X1) = E(X2)
+#                E(X1) < E(X2)
+# Bài toán kiểm định 2 đối tượng, do tuân theo pp chuẩn nên dùng t.test, và đo ở những mảnh ruộn khác nhau nên 2 mẫu độc lập
+t.test(x1, x2, alternative = "less", paired = F)
+# Do p-value = 0.07618 > 0.05 nên ta chưa thể bác bỏ H0
+# KL: với MYN 5%, ta không thể kết luận rằng bón lót 100 đơn vị đạm cho năng suất cao hơn bón lót 50 đơn vị đạm
+
+```
+
+### Bài 6:
+
+```{r}
+
+# Gọi A, B lần lượt là số khách trung bình mà hai tiếp viên A và B phục vụ của nhà hàng phục vụ trong mỗi ngày.
+a <- c(42, 36, 58, 27, 48, 85, 38, 44, 62)
+b <- c(53, 48, 65, 41, 57, 49, 74, 49, 56)
+
+# Kiểm tra xem a, b có tuân theo pp chuẩn không
+shapiro.test(a)
+# p-value = 0.4498 > 0.05 nên có thể nói A tuân theo phân phối chuẩn
+shapiro.test(b)
+# p-value = 0.5879 > 0.05 nên có thể nói B tuân theo phân phối chuẩn
+
+# Bài toán : H0: E(A) = E(B)
+#            H1: E(A) != E(B)
+# Do cùng một cửa hàng nên 2 mẫu này phụ thuộc paired = T
+
+t.test(a,b, paired = TRUE,alternative = "two.sided")
+# do p-value = 0.3926 > 0.05 nên chưa thể bác bỏ H0
+# KL: Với MYN 5%, ta chưa thể kết luận rằng lượng khách trung bình mà hai tiếp viên A và B phục vụ khác nhau
+
+
+```
+
+### Câu 7:
+
+```{r}
+# hệ số tương quan mẫu giữa Sepal.Length và Sepal.Width
+cor(iris$Sepal.Length, iris$Sepal.Width)
+# hệ số tương quan mẫu giữa Petal.Length và Petal.Width
+cor(iris$Petal.Length, iris$Petal.Width)
+
+# Kiểm định sự tương quan giữa Sepal.Length và Sepal.Width; Petal.Length và Petal.Width.
+?cor.test()
+# Bài toán : H0: rho = 0 (không có mối quan hệ tương quan tuyến tính)
+#            H1: rho != 0 (ngược lại)
+cor.test(iris$Sepal.Length, iris$Sepal.Width)
+# Do  p-value = 0.1519 > 0.05 nên chưa thể bác bỏ H0
+# KL: với MYN 5%, ta có thể nói không có tương quan giữa Sepal.Length và Sepal.Width
+
+# Bài toán : H0: rho = 0 (không có mối quan hệ tương quan tuyến tính)
+#            H1: rho != 0 (ngược lại)
+cor.test(iris$Petal.Length, iris$Petal.Width)
+# Do  p-value < 2.2e-16 < 0.05 nên có thể bác bỏ H0
+# KL: với MYN 5%, ta có thể nói có tương quan giữa Petal.Length và Petal.Width
+
+```
+
+```{r}
+# Mô hình hồi quy tuyến tính
+# mô hình hồi quy tuyến tính của Sepal.Width theo Petal.Width.
+?lm
+model <- lm(Sepal.Width ~ Petal.Width, data = iris)
+summary(model)
+# Trả lời: Các hệ số trong mô hình hồi quy có thực sự khác 0 không?
+# Bài toán : H0: các hệ số bằng 0
+#            H1: các hệ số khác 0
+# Do p-value của các hệ số của (Intercept) và Petal.Width lần lượt là < 2e-16 và 4.07e-06 < 0.05 nên ta có thể bác bỏ H0
+# KL: với mức ý nghĩa 5%, ta có thể nói các hệ số trong mô hình hồi quy thực sự khác 0
+
+# Trả lời: Phần dư trong mô hình có tuân theo phân phối chuẩn với giá trị trung bình bằng 0 không?
+# Gọi X là phân dư trong mô hình
+x <- residuals(model)
+x
+shapiro.test(x)
+# Bài toán: H0: X tuân theo pp chuẩn
+#           H1: X không tuân theo phân phối chuẩn
+# Do p-value = 0.9793 > 0.05 chưa thê bác bỏ H0
+# Với MYN 5%,ta có thể nói X tuân theo phân phối chuẩn
+#Do x tuân theo phân phối chuẩn -> t.test()
+t.test(x, mu = 0)
+# Bài toán: H0: EX = 0
+#           H1: EX != 0
+# Do p-value = 1 > 0.05 nên chưa chưa thể bác bỏ H0
+# KL: VỚi MYN 5%, ta có thể nói X tuân theo phân phối chuẩn với giá trị trung bình bằng 0
+
+```
