@@ -11,7 +11,7 @@ public class CompareCard implements Comparator<Card> {
         for (int i = 0; i < ranks.length; i++) {
             RANK_ORDER.put(ranks[i], i);
         }
-        // quy ước chất bài: ♠ > ♥ > ♦ > ♣
+
         SUIT_ORDER.put("♠", 3);
         SUIT_ORDER.put("♥", 2);
         SUIT_ORDER.put("♦", 1);
