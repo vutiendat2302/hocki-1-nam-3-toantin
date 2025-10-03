@@ -153,7 +153,7 @@ prop.test(x, n, p = p0, alternative = "two.sided", correct = FALSE)
 ### **Tóm tắt bảng so sánh**
 
 | Kiểm định | Kiểm gì | Giả định | Khi dùng | Output |
-|---------------|---------------|---------------|---------------|---------------|
+|----|----|----|----|----|
 | t-test | Trung bình | Dữ liệu chuẩn, chưa biết σ | Mẫu nhỏ hoặc lớn | t, df, p-value, CI |
 | Wilcoxon | Trung vị | Không cần chuẩn | Mẫu nhỏ, không chuẩn | W, p-value |
 | Shapiro.test | Phân phối chuẩn | Không | Kiểm tra trước t-test | W, p-value |
