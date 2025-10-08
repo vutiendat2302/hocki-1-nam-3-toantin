@@ -126,6 +126,7 @@ solve(matrix1)
 
 ```
 
+
 ### f
 
 ```{r}
@@ -134,6 +135,7 @@ eigen(matrix1)$value
 
 det(matrix2)
 ```
+
 
 ### g
 
@@ -218,3 +220,4 @@ if (all.equal(I_check, diag(nrow(matrix2))) == TRUE) {
 }
 
 ```
+

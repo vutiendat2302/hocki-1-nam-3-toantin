@@ -61,7 +61,6 @@ prop.test(68, 200, 0.4)
 ### Bài 4:
 
 ```{r}
-# Bài 4:
 # Gọi x là khoảng cách của oto
 x = na.omit(cars$dist)
 length(x)
@@ -70,7 +69,7 @@ length(x)
 #H0: Ex = 45
 #H1: Ex > 45
 
-# Kiểm tra dist tuân theo phân phối chuẩn,  n > 30 và n <= 50,  shapiro.test(d) kiểm tra xem nó có chuẩn không
+# Kiểm tra tuân theo phân phối chuẩn n > 30 và n <= 50,  shapiro.test(d) kiểm tra xem nó có chuẩn không
 ?shapiro.test()
 shapiro.test(x)
 
