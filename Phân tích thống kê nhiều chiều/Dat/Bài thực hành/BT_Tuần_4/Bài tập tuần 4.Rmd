@@ -1,0 +1,110 @@
+---
+title: "Bài tập tuần 4"
+author: "Nguyễn Thị Hiền Trang"
+date: "2025-09-27"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Câu 1 
+
+```{r}
+data("iris")
+head(iris)
+
+#(1) Tìm hệ số tương quan mẫu giữa Sepal.Length và Sepal.Width; Petal.Length và Petal.Width.
+cor(iris$Sepal.Length, iris$Sepal.Width)
+cor(iris$Petal.Length, iris$Petal.Width)
+
+#(2) Kiểm định sự tương quan giữa Sepal.Length và Sepal.Width; Petal.Length và Petal.Width.
+cor.test(iris$Sepal.Length, iris$Sepal.Width)
+#BT: H0: ro = 0 vs H1: ro!= 0
+#Do p-value = 0.1519 > 0.05 nên không đủ cơ sở để bác bỏ H0.
+#KL: Với myn 5%, không đủ bằng chứng để nói có sự tương quan tuyến tính giữa Sepal.Length và Sepal.Width 
+cor.test(iris$Petal.Length, iris$Petal.Width)
+#Do p-value < 2.2e-16 < 0.05 nên bác bỏ H0.
+#KL: Với myn 5%, có cơ sở để nói một tương quan tuyến tính giữa Petal.Length vad Petal.Width
+
+#(3) Viết mô hình hồi quy tuyến tính của Sepal.Width theo Petal.Width. Các hệ số trong
+#mô hình hồi quy có thực sự khác 0 không? Phần dư trong mô hình có tuân theo phân
+#phối chuẩn với giá trị trung bình bằng 0 không?
+lmfit = lm(iris$Sepal.Width ~ iris$Petal.Width)
+summary(lmfit)
+#a_0=3.30843, a_1=-0.20936
+#PT đường thẳng hồi quy tuyến tính của Sepal.Width theo Petal.Width
+#Sepal.Width = 3.30843 - 0.20936 * Peta.Width
+#Bt: H0: a0 = 0 vs H1: a0 != 0
+#Do p-value < 2 * 10^{-16} < 0.05 nên bác bỏ H0.
+#KL: Với myn 5%, có cơ sở để nói hệ số a_0 khác 0
+#Bt: H0: a1 = 0 vs H1: a1 != 0
+#Do p-value = 4.07 * 10^{-16} < 0.05 nên bác bỏ H0.
+#KL: Với myn 5%, có cơ sở để nói hệ số a_1 khác 0
+#Phần dư: R^2 = 0.134 => mô hình giải thích được 13,4% biến thiên của Sepal.Width theo Petal.Width
+shapiro.test(resid(lmfit))
+#p-value < 2.2e-16 < 0.05 => phần dư ko tuân theo phân phối chuẩn 
+```
+
+## Câu 2
+
+```{r}
+data("cars")
+set.seed(3)
+View(cars)
+
+#(1) Sử dụng câu lệnh set.seed(3) và chia bộ dữ liệu cars thành hai bộ dữ liệu con: training
+#(65%) và testing (35%).
+sample <- sample(c(TRUE, FALSE), nrow(cars), replace=TRUE, prob=c(0.65,0.35))
+sample
+table(sample)
+train <- cars[sample, ]
+View(train)
+test <- cars[sample, ]
+View(test)
+
+#(2) Phân tích hồi quy tuyến tính của biến dist theo speed trên bộ dữ liệu training.
+sample <- sample(c(TRUE, FALSE), nrow(cars), replace=TRUE, prob=c(0.65,0.35))
+model <- lm(train$dist ~ train$speed)
+summary(model)
+#a_0=-20.3105 , a_1= 4.1063 
+#PT hqtt của biến dist theo speed: dist = -20.3105+4.1063 *speed
+#Bt: H0: a0 = 0 vs H1: a0 != 0
+#Do p-value = 0.0203 < 0.05 nên bác bỏ H0.
+#KL: Với myn 5%, có cơ sở để nói hệ số a_0 khác 0
+#Phần dư R^2= 0.6341
+shapiro.test(resid(model))
+#BT: H0: phần dư tuân theo phân phối chuẩn vs H1: phần dư ko tuân theo phân phối chuẩn
+#p-value = 0.08604 > 0.05 => ko bác bỏ H0
+#KL: Có đủ cơ sở để nói rằng phân dư tuân theo phân phối chuẩn 
+
+#(3) Đánh giá trên bộ dữ liệu testing.
+x = test$speed; y = test$dist
+
+# Xây dựng mô hình hồi quy tuyến tính trên tập train
+lmfit <- lm(train$dist ~ train$speed)
+# Hệ số intercept
+a0_h <- lmfit$coefficients[1]
+# Hệ số góc
+a1_h <- lmfit$coefficients[2]
+
+# giá trị dự đoán y tương đương với x trong test
+y_h <- a0_h + a1_h * x
+
+# Độ biến thiên tổng thể của dữ liệu thật y, nếu dữ liệu phân tán nhiều thì TSS lớn
+(TSS <- sum((y - mean(y))^2))
+
+# Sai số giữa giá trị thật và giá trị dự đoán
+(RSS <- sum((y - y_h)^2))
+R2 <- 1 - (RSS/TSS)
+TSS
+RSS
+R2
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

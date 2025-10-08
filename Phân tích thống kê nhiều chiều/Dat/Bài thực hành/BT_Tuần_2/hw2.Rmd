@@ -1,0 +1,201 @@
+# Bài tập tuần 2: Phân phối chuẩn 1 chiều: 
+
+## Câu 1:
+
+
+```{r}
+# install.packages("MASS")
+# library(MASS)
+# View(hills)
+attach(hills)
+print("Giá trị trung bình:")
+print(sapply(hills, mean))
+print("Độ lệch tiêu chuẩn:")
+print(sapply(hills, sd))
+```
+
+### (ii)
+
+```{r}
+print("Kiểm định phân phối chuẩn cho biến độ dài đường đua (dist)")
+shapiro.test(dist)
+# Bài toán:
+# H0: dist tuân theo pp chuẩn
+# H1: dist không tuân theo pp chuẩn
+# Do p-value = 2.362e-06 < 0.05 nên bác bỏ H0,
+# KL: Với mức ý nghĩa 5%, có cơ sở để nói biến dist không tuân theo phân phối chuẩn
+
+print("Kiểm định phân phối chuẩn cho biến độ cao đạt được (climb)")
+shapiro.test(climb)
+# Bài toán:
+# H0: climb tuân theo pp chuẩn
+# H1: climb không tuân theo pp chuẩn
+# Do p-value = 1.456e-05 < 0.05 nên bác bỏ H0,
+# KL: Với mức ý nghĩa 5%, có cơ sở để nói biến climb không tuân theo phân phối chuẩn
+
+print("Kiểm định phân phối chuẩn cho thời gian chạy của người giành chiến thắng (time)")
+shapiro.test(time)
+# Bài toán:
+# H0: time tuân theo pp chuẩn
+# H1: time không tuân theo pp chuẩn
+# Do p-value = 1.458e-06 < 0.05 nên bác bỏ H0,
+# KL: Với mức ý nghĩa 5%, có cơ sở để nói biến time không tuân theo phân phối chuẩn
+
+```
+
+### (iii)
+
+```{r}
+pairs(hills)
+# Nhận xét: độ dài đường đua, độ cao đạt được và thời gian chạy đều tương quan, tỷ lệ thuận với nhau: Khi độ dài tăng thì độ cao đạt được và thời gian đều cùng tăng, tương tự cho các biến khác.
+```
+
+## Câu 2:
+
+### (i)
+
+```{r}
+# install.packages("datasets")
+# library(datasets)
+# View(iris)
+data <- iris[, 1:4] #Chỉ lấy các cột chứa dữ liệ về độ dài, rộng của lá, đài hoa
+print("Giá trị trung bình:")
+print(sapply(data, mean))
+print("Độ lệch tiêu chuẩn:")
+print(sapply(data, sd))
+```
+
+### (ii)
+
+```{r}
+attach(data)
+z1 <- Petal.Length # ĐỘ dài cánh hoa
+z2 <- Petal.Width # Độ rộng cánh hoa
+z3 <- Sepal.Length # Độ dài đài hoa
+z4 <- Sepal.Width # Độ rộng đài hoa
+# Bài toán:
+# H0: Zi tuân theo pp chuẩn ,i = 1->4
+# H1: Zi không tuân theo pp chuẩn 
+
+print("Kiểm định phân phối chuẩn cho độ dài của cánh hoa:")
+shapiro.test(z1)
+# Do p-value = 7.412e-10 < 0.05 nên bác bỏ H0,
+# KL: Với mức ý nghĩa 5%, có cơ sở để nói biến độ dài cánh hoa không tuân theo phân phối chuẩn
+
+print("Kiểm định phân phối chuẩn cho độ rộng của cánh hoa:")
+shapiro.test(z2)
+# Do p-value = 1.68e-08 < 0.05 nên bác bỏ H0,
+# KL: Với mức ý nghĩa 5%, có cơ sở để nói biến độ rộng cánh hoa không tuân theo phân phối chuẩn
+
+print("Kiểm định phân phối chuẩn cho độ dài của đài hoa:")
+shapiro.test(z3)
+# Do p-value = 0.01018 < 0.05 nên bác bỏ H0,
+# KL: Với mức ý nghĩa 5%, có cơ sở để nói biến độ dài đài hoa không tuân theo phân phối chuẩn
+
+print("Kiểm định phân phối chuẩn cho độ rộng của đài hoa:")
+shapiro.test(z4)
+# Do p-value = 0.1012 > 0.05 nên không bác bỏ H0,
+# KL: Với mức ý nghĩa 5%, có cơ sở để nói biến độ rộng đài hoa tuân theo phân phối chuẩn
+```
+
+### (iii)
+
+```{r}
+par(mfrow = c(1,2))
+hist(z4, main = "Hàm mật độ của độ rộng đài hoa", xlab = "Độ rộng đài hoa (cm)", ylab = "Mật độ", cex.main = 0.8)
+plot(ecdf(z4), main = "Hàm phân phối của độ rộng đài hoa", xlab = "Độ rộng đài hoa (cm)", ylab = "Xác suất", cex.main = 0.8)  
+```
+
+### (iv)
+
+```{r}
+# Bài toán:
+# Z4 <- Sepal.Width
+# H0: mean(Z4) = 3.5
+# H1: mean(Z4) < 3.5
+# Mức ý nghĩa alpha = 5%
+t.test(z4, mu = 3.5, alternative = "less", conf.level = 0.95)
+# Vì p-value < 2.2e-16 < 0.05 nên bác bỏ H0
+# KL: Với mức ý nghĩa 5%, có cơ sở để nói rằng độ rộng trung bình của đài hoa nhỏ hơn 3.5 cm.
+```
+
+### (v)
+
+```{r}
+# Ta cần tìm a sao cho P(z4 < a) = 0.7
+# => ta cần tính phân vị 70% của phân phối chuẩn của biến z4
+cat("a = ", qnorm(0.7, mean(z4), sd(z4)), "để xác suất độ rộng đài hoa nhỏ hơn a là 70%.")
+```
+
+### (vi)
+
+```{r}
+# Bài toán:
+# Đặt Z5 <- Độ rộng loài hoa loài setosa
+#     Z6 <- ĐỘ rộng loài hoa loài versicolor
+# H0: mean(Z5) = mean(Z6) 
+# H1: mean(Z5) != mean(Z6)
+# Mức ý nghĩa alpha = 1%
+z5 <- Sepal.Width[Species == "setosa"]
+z6 <- Sepal.Width[Species == "versicolor"]
+t.test(z5, z6, conf.level = 0.01)
+# Vì p-value = 2.484e-15 < 0.05 nên bác bỏ H0
+# KL: Với mức ý nghĩa 1%, có cơ sở để nói rằng độ rộng trung bình của đài hoa loài setosa và loài versicolor khác nhau.
+```
+
+## Câu 3:
+
+### (i)
+
+```{r}
+set.seed(1)
+# Sinh 30 mẫu, mỗi mẫu 20 quan sát, ~ N(158, căn8)
+data1 <- replicate(30, rnorm(20, 158, sqrt(8)))
+z_alpha_2 <- qnorm(1 - 0.02/2) 
+sigma <- sqrt(8)
+n <- 20
+means <- colMeans(data1)
+print("Khoảng tin cậy 98% cho giá trị trung bình của các mẫu ngẫu nhiên:")
+result <- t(sapply(means, function(x) c(x - z_alpha_2*sigma/sqrt(n), x + z_alpha_2*sigma/sqrt(n))))
+for (i in 1:30) {
+  cat("Mẫu ", i, ": [", result[i,1], ", ", result[i,2], "]\n")
+}
+
+```
+
+### (ii)
+
+```{r}
+widths <- result[,2] - result[,1] # Tính độ rộng khoảng tin cậy từng mẫu
+max_idx <- which.max(widths)
+min_idx <- which.min(widths)
+cat("Mẫu có khoảng tin cậy rộng nhất: Mẫu", max_idx, "\n")
+cat("Mẫu có khoảng tin cậy hẹp nhất: Mẫu", min_idx)
+```
+
+### (iii)
+
+```{r}
+max_means_idx <- which.max(means)
+cat("Mẫu thứ ", max_means_idx, "có giá trị trung bình lớn nhất")
+```
+
+### (iv)
+
+```{r}
+# Tính giá trị trung bình của mẫu tất cả các quan sát trong 30 mẫu ngẫu nhiên
+overall_mean <- mean(as.vector(data1))
+# Lọc ra các khoảng tin cậy chữa GTTB đó
+contained <- result[,1] <= overall_mean & result[,2] >= overall_mean
+filtered_result <- result[contained,]
+filtered_indices <- which(contained)
+# Vẽ biểu đồ sau khi đã lọc
+plot(0, type = "n", xlim = range(filtered_result), ylim = c(0, length(filtered_indices) + 1),
+     main = "Khoảng tin cậy cho GTTB của các mẫu ngẫu nhiên",
+     xlab = "Khoảng tin cậy cho GTTB", ylab = "Các mẫu ngẫu nhiên")
+for (i in seq_along(filtered_indices)) {
+  segments(filtered_result[i, ], i, filtered_result[i, 2], i, col = "green", lwd = 1) # Độ dài khoảng có màu xanh lá cây
+  points(filtered_result[i, 1], i, col = "red", pch = 19) # 2 đầu mút 
+  points(filtered_result[i, 2], i, col = "red", pch = 19) # có màu đỏ
+}
+```

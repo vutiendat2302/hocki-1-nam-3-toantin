@@ -1,0 +1,161 @@
+---
+title: "PTTK buổi 4"
+author: "Trần Đức Kiên 23000131 K68A2"
+date: "2025-09-26"
+output: html_document
+---
+
+# Kiểm định tuyến tính
+
+## I. Hồi quy tuyến tính đơn
+
+### - Xây dựng mô hình hồi quy tuyến tính
+
+```{r}
+# library(MASS)
+# ?Boston
+# View(Boston)
+# head(Boston)
+# Boston$medv
+# Boston$lstat
+attach(Boston) #tách các cột của Boston
+
+#Xem xét mối tương quan tuyến tính giữa 2 biến medv và lstat của bộ dữ liệu Boston
+#hệ số tương quan mẫu r giữa medv và lstat
+cor(medv, lstat) 
+#hệ số tương quan lý thuyết rho giữa 2 biến medv và lstat
+cor.test(medv, lstat) 
+# Bài toán: H0: ro =  0
+#           H1: ro != 0
+# do p-value < 2.2e-16 nên bác bỏ H0
+# KL: với myn 5%, có cơ sở để nói mối tương quan tuyến tính giữa lstat và medv
+# Khi đó, ta xây dựng mô hình hồi quy tuyến tính của medv theo lstat
+# hoặc lstat theo medv
+# Mô hình hồi qyu tuyến tính của medv theo lstat: medv = a0 + a1 * lstat
+lmfit = lm(medv ~ lstat + 0) # medv = a1 * lstat, a0 = 0
+lmfit = lm(medv ~ lstat) # Cách 1: sử dụng sau khi attach data
+lmfit = lm(medv ~ lstat, data = Boston) # Cách 2
+lmfit = lm(Boston$medv ~ Boston~lstat) # Cách 3
+# Cách 2 và 3 không cần attach data
+
+
+
+```
+
+### - Đánh giá sự phù hợp của mô hình
+
+```{r}
+# Để đánh giá sự phù hợp của mô hình có nhiều tiêu chí
+# ở đây, chỉ xem xét:
+# 1. Hệ số a0, a1 trong mô hình có thực sự khác 0
+# 2. Phân dư: e = medv (thực tế) - medv (mô hình) có tuân theo phân phối chuẩn với giá trị trung bình = 0 hay không ?
+summary(lmfit) # Tóm tắt kết lmfit
+# Xây dựng mô hình HQTT của medv theo lstat trong bộ dữ liệu Boston
+# Phần dư: ...
+# Hệ số a0 và a1
+# UL của hệ số a0 là a0 = 34.55384, UL của hệ số a1 là a1 = -0.95005
+# Phương trình đường thẳng HQTT biểu diễn medv theo lstat là:
+#   medv = 34.55384 - 0.95005 * lstat
+# Sai số tiêu chuẩn
+# t value và Pr(>|t|) lần lượt là test thống kê và p-value trong bài toán kiểm định hệ số của mô hình
+# Bài toán 1: H0: a0 = 0 vs H1: a0 != 0
+# do p-value < <2e-16 < 0.05 nên bác bỏ H0
+# KL: với myn 5%, có cơ sở để nói hệ số a0 khác 0
+# Bài toán 2: H0: a1 = 0 vs a1 != 0
+# do p-value < <2e-16 < 0.05 nên bác bỏ H0
+# KL: với myn 5%, có cơ sở để nói hệ số a1 khác 0
+# hay biến lstat có ý nghĩa thống kê
+
+```
+
+### - Phần dư của mô hình
+
+```{r}
+e = lmfit$residuals # Phần dư của mô hình
+# Kiểm định xem e có tuân theo phân phối chuẩn với GTTB = 0 không?
+shapiro.test(e) 
+# Bài toán: H0: e tuân theo PP chuẩn
+#            H1: e không tuân theo PP chuẩn
+# Do p-value < 2.2e-16 > 0.05 nên bác bỏ H0
+# KL: với myn 5%, e không tuân theo pp chuẩn
+wilcox.test(e)
+# Bài toán : H): E(e) = 0 vs H1: E(e) != 0
+# do p-value = 0.0002031 < 0.05 nên bác bỏ H0
+# KL : e có GTTB != 0
+plot(e)
+abline(h = 0, col = "red")
+```
+
+### - UL Khoảng tin cậy
+
+```{r}
+ 
+#Khoảng tin cậy 90% cho a0 và a1
+confint(lmfit, level = 0.9)
+#KTC 95% cho GTTB của medv với lstat cho trước
+predict(lmfit, data.frame(lstat = c(5,10,15)),
+        interval = "confidence", level = 0.95)
+#Khoảng dự đoán cho giá trụ thực của medv với lstat cho trước
+predict(lmfit, data.frame(lstat = c(5,10,15)),
+        interval = "prediction", level = 0.95)
+```
+
+## II. chia tập train, test
+
+### 1. Chia bộ dữ liệu {(x_i, u_i)} ban đầu thành 2 tập con:
+
+```{r}
+# training set và testing set
+# lấy ngẫu nhiên một tập dữ liệu con (theo tỷ lệ cho trước) để làm training set và phân dữ liệu còn lại dùng làm testing set
+```
+
+### 2. Xử lý trên training set: xây dựng mô hình hồi quy lý thuyết
+
+```{r}
+
+set.seed(1)
+sample <- sample(c(TRUE, FALSE), nrow(iris), replace = TRUE, prob = c(0.7, 0.3))
+sample
+table(sample)
+train <- iris[sample,]
+View(train)
+test <- iris[!sample,]
+View(test)
+# Bài 3
+y = test$Sepal.Length
+x = test$Petal.Length
+TSS <- sum((y - mean(y))^2)
+a0 = 4.28040
+a1 = 0.41055
+yh = a0 + a1 * x
+RSS <- sum((y - yh)^2)
+r2 = 1 - RSS/TSS
+r2
+# Bài 2
+lmfit2 = lm(train$Sepal.Length ~ train$Petal.Length)
+summary(lmfit2)
+# a0 = 4.28040, a1 =  0.41055
+# PTDT HQTT Sepal length theo petal length là 
+# Sepal.length = 4.2804 + 0.41055 * Petal.length
+confint(lmfit2, level = 0.95)
+# Khoảng tin 95% cho a0 là (4.081236, 4.4795609)
+# Khoảng tin cậy 95% cho a1 là (0.362601, 0.4584977)
+
+# Bài toán 1: H0: a0 = 0 vs H1: a0 != 0
+# do p-value < <2e-16 < 0.05 nên bác bỏ H0
+# KL: với myn 5%, có cơ sở để nói hệ số a0 khác 0
+# Bài toán 2: H0: a1 = 0 vs a1 != 0
+# do p-value < <2e-16 < 0.05 nên bác bỏ H0
+# KL: với myn 5%, có cơ sở để nói hệ số a1 khác 0
+# nghĩa là biến Petal.Length có ý nghĩa thống kê
+e = lmfit2$residuals
+shapiro.test(e) 
+#Bài toán : H0: e tuân theo PP chuẩn vs H1: e không tuân theo pp chuẩn
+# do p-value = 0.8481 > 0.05 nên chấp nhận H0
+# KL: với MYN 5%, ta có thể nói e tuân theo PP chuẩn
+t.test(e, mu = 0) 
+Bài toán : H0: E(e) = 0 vs H1: E(e) != 0
+plot(e);abline(h = 0, col = "red")
+```
+
+\
