@@ -1,0 +1,15 @@
+Dùng WSL: Chaỵ Power Shell bằng quyền admin
+- wsl --install -d Ubuntu
+- sudo adduser admin1
+- sudo usermod -aG sudo admin1
+- sudo apt-get update
+- sudo apt-get install gcc
+-su - user: switch between users
+-wsl -l -v: xem các phiên bản 
+---------------------
+wsl --list --verbose : Kiểm tra phiên bản, xem trạng thái của ubuntu
+
+wsl -d Ubuntu
+
+nano name.c (create a file new)
+gcc hello.c -o hello : bien dich file
