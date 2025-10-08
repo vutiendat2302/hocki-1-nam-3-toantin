@@ -1,0 +1,111 @@
+---
+title: '23000111'
+author: "VuTienDat"
+date: "2025-09-05"
+output: pdf_document
+
+---
+
+# Lý thuyết buổi 3
+
+```{r}
+# Giả sử chiều cao là:
+chieucao = c(164, 124, 167, 165, 187, 180, 188, 187, 178, 175, 171, 174)
+chieucao
+shapiro.test(chieucao, mu=165)
+
+
+```
+
+### bài 2
+
+```{r}
+install.packages("BSDA")
+library(BSDA)
+z.test(chieucao, mu = 168, sigma.x = 0.5, conf.level = 0.99)
+
+
+
+
+
+```
+
+### Khoogn tuana theo phân phối chuẩn dùng wilcost
+
+### kiểm định cho tỷ lệ dùng prop.test
+
+```{r}
+
+# Kiểm định cho tỷ lệ
+# Ước lượng điểm cho tỷ lệ 0.69 
+?prop.test
+prop.test(69, 100, 0.6)
+
+# gọi p là tỷ lệ nữ
+# Bt: H0: p = 0.6 với H1; p != 0.6
+# Do p-value > 0.5 nên chưa đủ cơ sở để bác bỏ H0 với myn 5%
+
+
+
+```
+
+### bài toán 2 mẫu
+
+```{r}
+set.seed(1)
+(x <- rnorm(100, 165, 5))
+set.seed(12)
+(y = rnorm(110, 163, 5.5))
+shapiro.test(x)
+shapiro.test(y)
+t.test(x, y)
+
+# ước lượng điểm của x, y chính là gttb mẫu của x là 165.5444 
+
+t.test(x, y , alt = "greater", conf.level = 0.99)
+
+
+#BT: 
+t.test(x, y , var.equal = T)
+x = c(1.83, 0.50, 1.62, 2.48, 1.68, 1.88, 1.55, 3.06, 1.30)
+y = c(0.787, 0.647, 0.598, 2.05, 1.06, 1.29, 1.06, 1.29, 3.14, 1.29)
+
+?wilcox.test
+wilcox.test(x, y, paired = TRUE)
+
+```
+
+```{r}
+# So sánh 2 tỷ lệ 
+# Một nghiên cứu nhầm so snash hiệu quả của thuộc chứng gãy xương,
+bệnh nhân được chia làm hai nhóm
+Nhóm A1; n1 = 200 bệnh nhân được diều trị;
+Nhóm B: n2 = 150 bệnh nhân không được điều trị 
+#Sau 2 năm theo dõi: nhóm A có K1 = 15 , nhóm B có K2=25 người gãy xương, 
+#Kiểm định tỷ lệ gãy xương khi được điều trị và không được ddieuf trị
+# có thực sự khác nhau hay không? 
+gayxuong = c(7,25) #k = (k1,k2)
+benhnhan = c(200,150) #n = (n1,n2)
+prop.test(gayxuong, benhnhan)
+
+# Goij p1 vaf p2 lan luowjt la tỷ lệ gãy xương của nhóm điều trị và khong điều trị
+
+BT: Ho : p1 = p2 với h1: p1 != p2
+Do p-value = 2.649 * 10^{-5} <0.1 nên bác bỏ h0
+kl: với myn 10% có cơ sở để nói tỷ lệ gãy xương của nhóm điều trị thấp 
+# nhóm khong điều triều trị ccos hiệu quả không 
+
+prop.test(gayxuong, benhnhan, alt = "less", conf.level = 0.9)
+
+#4. so sánh nhiều tỷ lệ 
+# Số hsg/ số hs tính A: 45/120. Tính B; 79/200 Tính C: 20/90
+hsg = c(45,79, 20)
+hs = c(129,200, 90)
+prop.test(hsg,hs) 
+
+
+
+
+
+
+```
