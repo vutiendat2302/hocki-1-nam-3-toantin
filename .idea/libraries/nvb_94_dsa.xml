@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="nvb_94_dsa">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dsa/DSA/nvb_94_dsa/Dijkstra.zip!/" />
+      <root url="jar://$PROJECT_DIR$/dsa/DSA/nvb_94_dsa/FINAL-REVIEW_nvb.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

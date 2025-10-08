@@ -1,0 +1,1 @@
+- Chú ý mấy bài dùng sapiro.test để kiếm tra biến có tuân theo pp chuẩn ko cần viết cả bài toán kiểm định ra mới đúng, H0, H1 đó

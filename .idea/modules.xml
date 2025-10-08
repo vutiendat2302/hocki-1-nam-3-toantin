@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/dsa/Dat/Study/Study.iml" filepath="$PROJECT_DIR$/dsa/Dat/Study/Study.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dsa/Dat/excersice/week2/baitap1/baitap1.iml" filepath="$PROJECT_DIR$/dsa/Dat/excersice/week2/baitap1/baitap1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dsa/Dat/excersice/week2/baitap2/baitap2.iml" filepath="$PROJECT_DIR$/dsa/Dat/excersice/week2/baitap2/baitap2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dsa/Dat/excersice/week2/baitap3/baitap3.iml" filepath="$PROJECT_DIR$/dsa/Dat/excersice/week2/baitap3/baitap3.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dsa/Dat/excersice/week2/baitap7/baitap7.iml" filepath="$PROJECT_DIR$/dsa/Dat/excersice/week2/baitap7/baitap7.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/hoc_ki_1_nam_hoc_2025_2026.iml" filepath="$PROJECT_DIR$/.idea/hoc_ki_1_nam_hoc_2025_2026.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dsa/DSA/nvb_94_dsa/nvb.algorithm_impl/nvb.algorithm_impl.iml" filepath="$PROJECT_DIR$/dsa/DSA/nvb_94_dsa/nvb.algorithm_impl/nvb.algorithm_impl.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dsa/DSA/nvb_94_dsa/nvb_94_dsa.iml" filepath="$PROJECT_DIR$/dsa/DSA/nvb_94_dsa/nvb_94_dsa.iml" />
+    </modules>
+  </component>
+</project>
