@@ -126,8 +126,8 @@ solve(matrix1)
 
 ```
 
-
 ### f
+
 ```{r}
 eigen(matrix1)
 eigen(matrix1)$value
@@ -135,17 +135,19 @@ eigen(matrix1)$value
 det(matrix2)
 ```
 
-
 ### g
+
 ```{r}
 solve(matrix1) * t(matrix2)
 ```
+
 ```{r}
 z = solve(matrix1)*(matrix1 + matrix2)
 z
 ```
 
 ### h
+
 ```{r}
 ?upper.tri
 ?lower.tri
@@ -160,6 +162,7 @@ all(eigen(g)$values > 0)
 ```
 
 ### j
+
 ```{r}
 # 1. Ma trận trực giao (orthogonal matrix) là gì?
 # 
@@ -215,4 +218,3 @@ if (all.equal(I_check, diag(nrow(matrix2))) == TRUE) {
 }
 
 ```
-

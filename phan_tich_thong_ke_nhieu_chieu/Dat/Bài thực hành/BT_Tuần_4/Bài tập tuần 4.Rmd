@@ -80,12 +80,22 @@ shapiro.test(resid(model))
 
 #(3) Đánh giá trên bộ dữ liệu testing.
 x = test$speed; y = test$dist
+
+# Xây dựng mô hình hồi quy tuyến tính trên tập train
 lmfit <- lm(train$dist ~ train$speed)
+# Hệ số intercept
 a0_h <- lmfit$coefficients[1]
+# Hệ số góc
 a1_h <- lmfit$coefficients[2]
+
+# giá trị dự đoán y tương đương với x trong test
 y_h <- a0_h + a1_h * x
-TSS <- sum((y - mean(y))^2)
-RSS <- sum((y - y_h)^2)
+
+# Độ biến thiên tổng thể của dữ liệu thật y, nếu dữ liệu phân tán nhiều thì TSS lớn
+(TSS <- sum((y - mean(y))^2))
+
+# Sai số giữa giá trị thật và giá trị dự đoán
+(RSS <- sum((y - y_h)^2))
 R2 <- 1 - (RSS/TSS)
 TSS
 RSS
