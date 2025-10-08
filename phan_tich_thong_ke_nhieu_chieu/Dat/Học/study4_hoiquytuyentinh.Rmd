@@ -275,15 +275,13 @@ RSS <- sum((y - yh)^2)
 r2 = 1 - RSS/TSS
 r2
 
-<<<<<<< HEAD:Phân tích thống kê nhiều chiều/Dat/Học/study4_hoiquytuyentinh.Rmd
-=======
+
 # Cách đánh giá mô hình
 # Nếu r2 ~ 1: rất tốt
 # nếu r2 ~ 0: mô hình kém
 # r2 > 0.8 mô hình tốt
 # 0.5 <= r2 <= 0.8: mô hình chấp nhận được
 # r2 < 0.5: mô hình yếu
->>>>>>> f3812ae564cf66599714c91c27b1b506a6affcd1:phan_tich_thong_ke_nhieu_chieu/Dat/Học/study4_hoiquytuyentinh.Rmd
 
 
 ```
