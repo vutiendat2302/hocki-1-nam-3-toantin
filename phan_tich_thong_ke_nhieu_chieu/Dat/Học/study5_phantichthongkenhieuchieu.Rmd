@@ -1,0 +1,172 @@
+---
+title: "study_5_phantichthongkenhieuchien"
+author: "VuTienDat"
+date: "2025-10-10"
+output: html_document
+---
+
+#2. Vecto nn: vecto-nn z = (z1,, z2) có phân bố chuẩn 2 chiều với: \# Vecto kì vọng \#
+
+```{r}
+
+library(MASS)
+library(ggplot2)
+
+# Vector kỳ vọng
+m = c(0.5, 1.0)
+
+# Ma trận hiệp phương sai
+s = matrix(c(1, 0.5, 0.5, 1), nrow = 2)
+
+# Sinh mẫu
+n = 500
+set.seed(123)
+samples = mvrnorm(n = n, mu = m, Sigma = s)
+
+# Xem 6 mẫu đầu
+head(samples)
+
+# Chuyển sang data frame
+samples_df = data.frame(z1 = samples[, 1], z2 = samples[, 2])
+
+# Vẽ scatter plot
+ggplot(samples_df, aes(x = z1, y = z2)) +
+  geom_point(color = "blue", alpha = 0.6)
+
+# Vẽ đò thị tán xạ kết hợ với đường mặt mức
+ggplot(samples_df, aes(x = z1, y = z2)) + geom_point(color = "blue", alpa = 0.6) + stat_density_2d(aes(fill= ..level..),
+                                                                                                   geom = "polygon",
+                                                                                                   color = "orange",
+                                                                                                   bins = 15) + 
+  # Đường mặt mức: 
+  # Phân vị bình phương 
+  # Đồ thị chứa các đường kết nối các điểm
+  # Có cùng giá trị hàm mật độ
+  # Mặt mức giúp minh họa sự phân bố của dữ liệu trong kgian 2 chiều
+  
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
+  labs(title = "Đồ thị tán xạ cùng đường mặt mức", x = "z1", y = "z2" ) + theme_minimal()
+
+
+```
+
+```{r}
+#3. Mẫu ngẫu nhiên nhiều chiều
+# Tính ma trận hiệp phương sai và ma trạn tương quan
+# Mẫu 2 chiều, một vecto có 2 giá trị
+
+# Để sinh dữ liệu mô phỏng phân bố nhiều chiều ta sử dụng gói lệnh mvtnorm
+
+install.packages("mvtnorm")
+library(mvtnorm)
+
+# Sinh mẫu 2 chiều dùng mvtnorm
+set.seed(1)
+x = rmvnorm(n = 50, mean = c(0,0), sigma = matrix(c(1, .8, .8, 1), nrow = 2))
+
+head(x)
+colMeans(x)
+cov(x)
+cor(x)
+
+# Ma trận tương quna mẫu dudojc sử dụng nhiều hơn để xem xét các biến vì nó đã co lai trong khoảng -1, 1
+# Ma trận phương sai phụ thụ các biến
+```
+
+```{r}
+print(x)
+
+
+
+
+mean_x = colMeans(x)
+cov_x = cov(x) # Ma trận hiệp phương sai mẫu
+cor_x = cor(x) # Ma trận tương quan mẫu
+
+# Tạo lưới ch đồ thị contour - đồ thị mặt mức
+x1_seq = seq(-3, 3, length.out = 100)
+y1_seq = seq(-3, 3, length.out = 100)
+grid = expand.grid(x1 = x1_seq, y1 = y1_seq)
+grid
+
+# Tính toán mật độ xác suát cho lưới
+grid$z = apply(grid, 1, function(now)
+  dmnorm(row, mean = mean_x, varcov = cov_x))
+grid$z
+
+# Vẽ đồ thị contour
+# png 
+contour(x1_seq, y1_seq, matrix(grid$z, nrow = 100), main = "Contour Plot of Multivariate Normal Distribuition", xlab = "x1", ylab = "x2")
+```
+
+```{r}
+#3.1. Kiểm định giá trị trung bình 2 mẫu một chiều:
+
+# install.packages("ICSNP")
+library(ICSNP)
+
+?LASERI
+data(LASERI)
+attach(LASERI)
+View(LASERI)
+# Kiểm tra tính chuẩn của biến HRT2 và HRT3 của data LASERI?
+# Xét bài toán:
+# H0: HRT2 có phân phối chuẩn
+# H1: HRT2 không có phân phối chuẩn
+
+shapiro.test(HRT2)
+# Do p-value > 0.05 nên chấp nhận H0, bác bỏ H1
+
+# ... Tương tự
+# Nếu 2 biến đều chuẩn thì dùng hàm t.test() để kiểm định xem:
+# Do tuân theo phân phối chuẩn:
+
+
+t.test(HRT2, HRT3, paired = T)
+#1. gttb của HRT2 và HRT3 có bằng nhau không ? myn 5%
+t.test(HRT2, HRT3, paired = T)
+#2. gttb của HRT2 nhỏ hơn HRT3 không? myn = 2%
+t.test(HRT2, HRT3, paired = T, alt = "less", conf.level = 0.98)
+
+# Dùng hàm HotellingT2 kiểm định xem GTTB của
+##1 (HRT1T4, COT1T4, SVRIT1T4, PWVT1T4 có thực sự khác (0,0,0,0) không ? - 1 Mẫu)
+# H0: Ex = (0,0,0,0) với H1: Ex != (0,0,0,0)
+HotellingsT2((LASERI[, c("HRT1T4", "COT1T4", "SVRIT1T4", "PWVT1T4")]))
+
+#2. (HRT1, COT1, SVRIT, PWVT1) có thực sự khác (HRT4, COT4, SVRIT4, PWT4) không - 2 mẫu
+
+HotellingsT2(LASERI[, c("HRT1", "COT1", "SVRIT1", "PWVT1")], 
+              LASERI[, c("HRT4", "COT4", "SVRIT4", "PWVT4")],
+              paired = T)
+#ho: E(Hrt1) = E(hrt4), E(cot1) = E(cot4), E(svrt1) = E(svrt4), ...
+#h1: ngược lại
+
+
+
+```
+
+```{r}
+# Vẽ biểu đồ nhiệt và biểu đồ tán xạ
+# Biểu đồ tán xạ và biểu đồ nhiệu đều dùng để qan sát trực quan mối quan hệ 
+# Tương quan giữa các cặp biến
+# Biểu đồ tán xạ gồm các cặp điểm tương ứng với các cặp biến được xét chọn, 
+# Các điểm càng nawmgf sát trên cùng 1 đường thẳng thì tính tương quan tuyenestinsh giữa 2 biến càng mạnh 
+# Biểu đồ nhiệt thể hiện tính tương quan giữa 2 biến bởi màu sắc của các ô quan sát
+# Biểu đồ tán xạ thường được dùng trong trường hợp số lượng biến ít (< 10)
+# Biểu đồ nhiệt hay được dùng trong trường hợp số lượng biến nhiều
+
+library(ICSNP)
+data("LASERI")
+names(LASERI)
+View(LASERI)
+cor(LASERI[, 25:28])
+
+# Biểu đồ tán xạ cho các cặp biến trong các biến từ 12 - 28 của data LASERI
+pairs(LASERI[, 12:28], lwd = 1, pch = 16, cex = .5, col = "red",
+       gap = 0, xaxt = "n", yaxt = "n")
+```
+
+```{r}
+# Biểu đồ nhiệt thường dùng khi số biến > 10
+
+```
