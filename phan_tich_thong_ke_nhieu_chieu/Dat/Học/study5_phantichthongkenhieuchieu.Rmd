@@ -5,12 +5,21 @@ date: "2025-10-10"
 output: html_document
 ---
 
-#2. Vecto nn: vecto-nn z = (z1,, z2) có phân bố chuẩn 2 chiều với: \# Vecto kì vọng \#
+### 2 . Vecto ngẫu nhiên tuân theo phân phối chuẩn
 
 ```{r}
+#2. vecto nn: Cho vec-tơ nn Z = (z1, z2) có phân bố chuẩn 2 chiều với 
+#* Véc-tơ kỳ vọng mu = (0.5, 1)^T (ma trận [2, 1]) là giá trị trung bình của mỗi thành phần trong vecto ngẫu nhiên
+#* #* Ma trận hiệp phương sai sigma = [1 0.5
+#*                                    0.5 1]
+#*
+# Ma trận hiệp phương sai là ma trận mô tả mức độ biến và mối liên hệ giữa các thành phần của một vecto ngẫu nhiên
 
+#a. Trước tiên sinh 500 quan sát từ phân bố chuẩn nhiều chiều
+#~N(m,S) như sau
 library(MASS)
-library(ggplot2)
+
+# Xác định vecto trung bình và ma trận hiệp phương sai
 
 # Vector kỳ vọng
 m = c(0.5, 1.0)
@@ -18,155 +27,300 @@ m = c(0.5, 1.0)
 # Ma trận hiệp phương sai
 s = matrix(c(1, 0.5, 0.5, 1), nrow = 2)
 
-# Sinh mẫu
+# #Sinh mẫu từ phần phối chuẩn đa chiều
 n = 500
 set.seed(123)
+
+# Cách 1: Hàm sinh mẫu
+# mvrnorm() được dùng để sinh ngẫu nhiên các mẫu từ phân phối chuẩn nhiều chiều
+# n: số lượng mẫu muốn sinh, mu: vecto kì vọng, Sigma: ma trận hiệp phương sai
+
 samples = mvrnorm(n = n, mu = m, Sigma = s)
 
+# print(samples)
 # Xem 6 mẫu đầu
 head(samples)
 
-# Chuyển sang data frame
+#b. Với dữ liệu vừa sinh ra ta biểu diễn dưới dạng đồ thị tán xạ
+#Kết hợp cùng các đường mặt mức
+#Để vẽ các đồ thị thuận tiện ta sẽ sử dụng gói lệnh ggplot2.
+
+# Biểu đồ tán xạ giúp nhìn trực tiếp sự phân bố và mối quan hệ giữa 2 biến ngẫu nhiên z1 vaf z2
+# Mỗi điểm trên đồ thị tương ứng với một mẫu (z1, z2) được sinh ra
+# Mục đích: thấy xu hướng tương quan giữa 2 biến, thấy mật độ điểm tập trung ở vùng nào, giúp kiểm tra trực quan xem dữ liệu có chuẩn không, thường có dạng hình elip
+
+# Đường mặt mức là những đường nối các điểm có cùng mật độ xác suất trong phân phối 2 chiều. Thể hiện hình dạng của phân phối, giúp thấy độ lan tỏa, hướng tương quan, giúp hiểu cấu trúc ma trận hiệp phương sai
+
+#install.packages("ggplot2")
+library(ggplot2)
+
+#Chuyển đổi mẫu thành data.frame để sử dụng với ggplot2
 samples_df = data.frame(z1 = samples[, 1], z2 = samples[, 2])
 
-# Vẽ scatter plot
-ggplot(samples_df, aes(x = z1, y = z2)) +
-  geom_point(color = "blue", alpha = 0.6)
+# Phân biệt ma trận và data.frame:
+# Ma trận: tất cả các phần tử phải cùng dữ liệu, dùng để tính toán ma trận
+# DataFrame: cùng là một bảng, nhưng các cột có thể khác dữ liệu, mỗi cột là một biến, mỗi hàng là một quan sát
+
+
+# Vẽ scatter plot - biểu đồ tán xạ
+ggplot(samples_df, aes(x = z1, y = z2)) + geom_point(color = "blue", alpha = 0.6) + labs(title = "Scatter plot của dữ liệu nvrnorm", x = "Biến Z1", y = "Biến Z2")
+
+# aes: quy định biến nào vẽ lên trục nào
+# geom_point: hình dạng hiển thị dữ liệu: các điểm, alpha điều chỉnh độ trong suốt của điểm
+# labs: định dạng tên cột, title
 
 # Vẽ đò thị tán xạ kết hợ với đường mặt mức
-ggplot(samples_df, aes(x = z1, y = z2)) + geom_point(color = "blue", alpa = 0.6) + stat_density_2d(aes(fill= ..level..),
-                                                                                                   geom = "polygon",
-                                                                                                   color = "orange",
-                                                                                                   bins = 15) + 
-  # Đường mặt mức: 
-  # Phân vị bình phương 
-  # Đồ thị chứa các đường kết nối các điểm
-  # Có cùng giá trị hàm mật độ
-  # Mặt mức giúp minh họa sự phân bố của dữ liệu trong kgian 2 chiều
+ggplot(samples_df, aes(x = z1, y = z2)) + geom_point(color = "blue", alpha = 0.6) + stat_density_2d(aes(fill= ..level..),
+
+# stat_density_2d: Thêm các đường mặt mức biểu diễn mật độ xác suất 2 chiều
+# Mức độ tập trung của các điểm, ở vùng có nhiều điểm, mật độ cao hơn
+# aes(fill = ..level..):level là biến nội bộ của ggplot biểu diễn mức mật độ, fill = ..level.. giúp tô màu các đường mặt mức theo độ đậm nhạt
+                                                                                                   geom = "polygon", # geom: là tham số quy dịnh các biểu diễn đường mặt mức, contour: vẽ đường viền, polygon: tô kín các vùng giữa các đừng mức bằng màu
+                                                                                                   color = "orange", # Đặt màu viền
+                                                                                                   bins = 15) + # Chia mật độ xác suất thành 15 mức khác nhau, nó tạo 15 tầng ứng với các mật độ khác nhau
   
-  scale_fill_gradient(low = "lightblue", high = "darkblue") +
-  labs(title = "Đồ thị tán xạ cùng đường mặt mức", x = "z1", y = "z2" ) + theme_minimal()
+# Đường mặt mức (z-mu)^T Sigma^{-1} (z-mu) = c^2 = x^2_k(alpha)
+#(phân vị khi bình thường)
+#đồ thị chứa các đường (hoặc các vùng màu sắc) kết nối các điểm có cùng giá trị hàm mật độ (hoặc xác suất).
+#Mặt mức giúp minh họa sự phân bố của dữ liệu trong không gian 2 chiều.
+  
+  scale_fill_gradient(low = "lightblue", high = "darkblue") + # Tùy chỉnh thang màu tô theo vùng mật độ, chuyển từ xanh -> tím
+  labs(title = "Đồ thị tán xạ cùng đường mặt mức", x = "z1", y = "z2" ) + theme_minimal() 
+# theme_minimal(): giao diện tối giản cho đồ thị, loại bỏ các đường viền, màu nền thừa -> giúp biểu đồ gọn gàng hơn (Đã thử vừa chưa nhận được sự khác biệt nhiều lắm)
 
 
 ```
 
+### 3. Mẫu ngẫu nhiên nhiều chiều:
+
 ```{r}
-#3. Mẫu ngẫu nhiên nhiều chiều
-# Tính ma trận hiệp phương sai và ma trạn tương quan
+# Tính ma trận hiệp phương sai và ma trận tương quan
 # Mẫu 2 chiều, một vecto có 2 giá trị
-
-# Để sinh dữ liệu mô phỏng phân bố nhiều chiều ta sử dụng gói lệnh mvtnorm
-
-install.packages("mvtnorm")
+  
+# Để sinh dữ liệu mô phỏng phân bố chuẩn nhiều chiều ta sử dụng gói lệnh mvtnorm.
+# install.packages("mvtnorm")
+# Phân biệt mvrnorm với mvtnorm:
+# mvrnorm: là một hàm không phải một package, là một hàm trong gói MASS, dùng để sinh dữ liệu phân phối chuẩn nhiều chiều
+# mvtnorm: là một gói trong R, cung cấp nhiều hàm để làm việc với phân phối chuẩn nhiều chiều và các phân phối khác
 library(mvtnorm)
 
-# Sinh mẫu 2 chiều dùng mvtnorm
+# Cách 2: Sinh mẫu 2 chiều dùng mvtnorm
+# random multivariate normal: dùng hàm rmvnorm
 set.seed(1)
-x = rmvnorm(n = 50, mean = c(0,0), sigma = matrix(c(1, .8, .8, 1), nrow = 2))
+X = rmvnorm(n = 50, mean = c(0,0), sigma = matrix(c(1, .8, .8, 1), nrow = 2))
+# Sinh ngẫu nhiên 50 quan sát có phân phối chuẩn nhiều chiền N(mean, sigma)
+head(X)
+colMeans(X) #Trung bình mẫu
+cov(X) #Ma trận hiệp phương sai mẫu: cho biến mối quan hệ giữa từng biến
 
+cor(X) #Ma trận tương quan mẫu, nằm trong khoảng [-1, 1]. Là phiên bản chuẩn hóa của hiệp phương sai, nên không phụ thuộc vào đơn vị đo
+#Ngoài ra, ta có thể sử dụng gói lệnh mnormt như sau:
 head(x)
-colMeans(x)
-cov(x)
-cor(x)
 
-# Ma trận tương quna mẫu dudojc sử dụng nhiều hơn để xem xét các biến vì nó đã co lai trong khoảng -1, 1
-# Ma trận phương sai phụ thụ các biến
+# Ma trận tương quan mẫu được sử dụng nhiều hơn để xem xét các biến vì không phụ thuộc và đơn vị đo và xác định r
 ```
 
 ```{r}
-print(x)
+#Ngoài ra, ta có thể sử dụng gói lệnh mnormt như sau:
+# install.packages("mnormt")
+# ? mnormt()
 
+# Là gói dùng để làm việc với các phân phối chuẩn đa chiều và phân phối student đa chiều
+# Chức năng: sinh ngẫu nhiên dữ liệu theo phân phối đa chiều: rmnorm
+# Tính mật độ: dmnorm()
+# Tính xác suất: pmnorm()
+library(mnormt)
+set.seed(1)
 
+#Định nghĩa trung bình và ma trận hiệp phương sai
+mu <- c(0,0)
+sigma <- matrix(c(1, 0.8, 0.8, 1), nrow = 2)
 
+# Cách 3: sinh 50 mẫu nn từ phân phối chuẩn nhiều chiều
+X <- rmnorm(50, mean = mu, varcov = sigma) 
+print(X) # In ra các mẫu đã sinh
 
-mean_x = colMeans(x)
-cov_x = cov(x) # Ma trận hiệp phương sai mẫu
-cor_x = cor(x) # Ma trận tương quan mẫu
+#Tính toán trung bình mẫu, ma trận hiệp phương sai và ma trận tươg quan 
+mean_X <- colMeans(X) #Trung bình mẫu
+cov_X <- cov(X) #Ma trận hiệp phương sai mẫu
+cor_X <- cor(X) #Ma trận tương quan mẫu
+#Tạo lưới cho đồ thị contour-đồ thị mặt mức
+x1_seq <- seq(-3, 3, length.out = 100)
+y1_seq <- seq(-3, 3, length.out = 100)
+# Tạo 100 giá trị đều nhau từ -3, 3
 
-# Tạo lưới ch đồ thị contour - đồ thị mặt mức
-x1_seq = seq(-3, 3, length.out = 100)
-y1_seq = seq(-3, 3, length.out = 100)
-grid = expand.grid(x1 = x1_seq, y1 = y1_seq)
+grid <- expand.grid(x1 = x1_seq, y1 = y1_seq)
+# expand.grid(): kết hợp tất cả các cặp có thể có:
 grid
 
-# Tính toán mật độ xác suát cho lưới
-grid$z = apply(grid, 1, function(now)
-  dmnorm(row, mean = mean_x, varcov = cov_x))
-grid$z
+#Tính toán mật độ xác suật cho lưới
+grid$z <- apply(grid, 1, function(row) dmnorm(row, mean = mean_X, varcov = cov_X))
+# Duyệt từng hàng, apply duyệt từng hàng
+# dmnorm() hàm từ gói mrnomt, tính giá trị của phân phối chuẩn 2 chiều tại điểm
+# cov_x: ma trận hiệp phương sai
+grid$z 
+#Vẽ đồ thị contour
+png("contour_plot.png", width = 800, height = 600) #Mở tệp PNG
+# Bắt đầu ghi hình png
+contour(x1_seq, y1_seq,
+        matrix(grid$z,nrow = 100),
+        main = "Contour plot of Multivariate Normal Distribution",
+        xlab = "X1", ylab = "X2") # Đồ thị đừng đồng mức là đồ thị 2 chiều thể hiện phân bố
+# Các đường counter là các đường elip
+# Trung tâm elip là vecto kỳ vọng (mean)
+# Độ nghiêng và độ dài trục của elip phản ánh ma trận hiệp phương sai
+# Càng gần tâm mật độ xác suất càng cao và ngược lại
 
-# Vẽ đồ thị contour
-# png 
-contour(x1_seq, y1_seq, matrix(grid$z, nrow = 100), main = "Contour Plot of Multivariate Normal Distribuition", xlab = "x1", ylab = "x2")
+#dev.off() #Đóng tệp PNG
+
 ```
 
-```{r}
-#3.1. Kiểm định giá trị trung bình 2 mẫu một chiều:
+### 3.1: Kiểm định giá trị trung bình 2 mẫu một chiều:
 
+```{r}
 # install.packages("ICSNP")
 library(ICSNP)
-
 ?LASERI
 data(LASERI)
 attach(LASERI)
-View(LASERI)
+# View(LASERI)
 # Kiểm tra tính chuẩn của biến HRT2 và HRT3 của data LASERI?
 # Xét bài toán:
 # H0: HRT2 có phân phối chuẩn
 # H1: HRT2 không có phân phối chuẩn
-
 shapiro.test(HRT2)
 # Do p-value > 0.05 nên chấp nhận H0, bác bỏ H1
 
-# ... Tương tự
+# Xét bài toán:
+# H0: HRT3 có phân phối chuẩn
+# H1: HRT3 không có phân phối chuẩn
+shapiro.test(HRT3)
+# Do p-value > 0.05 nên chấp nhận H0, bác bỏ H1
 # Nếu 2 biến đều chuẩn thì dùng hàm t.test() để kiểm định xem:
 # Do tuân theo phân phối chuẩn:
 
+#1. gttb của HRT2 và HRT3 bằng nhau ko? myn 5%
+t.test(LASERI$HRT2, LASERI$HRT3, paired = TRUE)
+# Bài toán:
+# H0: m1 = m2
+# H1: m1 != m2
+# Do pvalue < 0.05 nên bác bỏ H0, chấp nhận H1
+#2. gttb của HRT2 nhỏ hơn HRT3 ko? myn = 2%
+t.test(LASERI$HRT2, LASERI$HRT3, paired = TRUE, alt = "less", conf.level = 0.98)
+# Bài toán:
+# H0: m1 = m2
+# H1: m1 != m2
+# Do pvalue < 0.05 nên bác bỏ H0, chấp nhận H1
 
-t.test(HRT2, HRT3, paired = T)
-#1. gttb của HRT2 và HRT3 có bằng nhau không ? myn 5%
-t.test(HRT2, HRT3, paired = T)
-#2. gttb của HRT2 nhỏ hơn HRT3 không? myn = 2%
-t.test(HRT2, HRT3, paired = T, alt = "less", conf.level = 0.98)
+
+# Biết so sánh theo cặp
+# chỉ số sức cản mạch hệ thống TB(SVRIT1T4)
+# tốc độ sóng mạch TB(PWVT1T4)
+names(LASERI[,25:28])
+colMeans(LASERI[,25:28])
+cov(LASERI[,25:28])
 
 # Dùng hàm HotellingT2 kiểm định xem GTTB của
-##1 (HRT1T4, COT1T4, SVRIT1T4, PWVT1T4 có thực sự khác (0,0,0,0) không ? - 1 Mẫu)
+#1 (HRT1T4, COT1T4, SVRIT1T4, PWVT1T4 có thực sự khác (0,0,0,0) không ? - 1 Mẫu)
 # H0: Ex = (0,0,0,0) với H1: Ex != (0,0,0,0)
 HotellingsT2((LASERI[, c("HRT1T4", "COT1T4", "SVRIT1T4", "PWVT1T4")]))
 
-#2. (HRT1, COT1, SVRIT, PWVT1) có thực sự khác (HRT4, COT4, SVRIT4, PWT4) không - 2 mẫu
+##2. (HRT1, COT1, SVRIT1, PWVT1) có thực sự khác (HRT4, COT4, SVRIT4, PWVT4) ko? - 2 mau
+HotellingsT2(LASERI[,c('HRT1', 'COT1', 'SVRIT1', 'PWVT1')],
+             LASERI[,c('HRT1', 'COT4', 'SVRIT4', 'PWVT4')],
+             paired = TRUE)
+#H0: E(HRT1) = E(HRT4), E(COT1) = E(COT4), E(SVRIT1) = E(SVRIT4), E(PWVT1) = E(PWVT4)
+#H1: ngược lại
 
-HotellingsT2(LASERI[, c("HRT1", "COT1", "SVRIT1", "PWVT1")], 
-              LASERI[, c("HRT4", "COT4", "SVRIT4", "PWVT4")],
-              paired = T)
-#ho: E(Hrt1) = E(hrt4), E(cot1) = E(cot4), E(svrt1) = E(svrt4), ...
-#h1: ngược lại
+# Hàm HotellingT2: là phần mở rộng của kiểm định t-test một mẫu, nó kiểm tra vecto trung bình của nhiều biến
 
+#Đây là một câu hỏi rất hay. Về mặt lý thuyết, kiểm định Hotelling's T-squared yêu cầu dữ liệu phải tuân theo phân phối chuẩn đa biến (multivariate normal distribution).
 
+# Tuy nhiên, nhờ có Định lý Giới hạn Trung tâm phiên bản đa biến, kiểm định này vẫn khá mạnh (robust) khi giả định về tính chuẩn bị vi phạm nhẹ, đặc biệt là khi kích thước mẫu lớn (như trong trường hợp của chúng ta, mỗi năm có khoảng 252 quan sát).
+
+# Do đó, dù bạn đã kiểm tra và thấy các biến riêng lẻ không tuân theo phân phối chuẩn (với shapiro.test), việc sử dụng Hotelling's T-squared trong trường hợp này vẫn có thể chấp nhận được do cỡ mẫu lớn.
 
 ```
 
 ```{r}
+# Bài tập:
 # Vẽ biểu đồ nhiệt và biểu đồ tán xạ
-# Biểu đồ tán xạ và biểu đồ nhiệu đều dùng để qan sát trực quan mối quan hệ 
-# Tương quan giữa các cặp biến
+# Biểu đồ tán xạ và biểu đồ nhiệu đều dùng để qan sát trực quan mối quan hệ tương quan giữa các cặp biến
 # Biểu đồ tán xạ gồm các cặp điểm tương ứng với các cặp biến được xét chọn, 
-# Các điểm càng nawmgf sát trên cùng 1 đường thẳng thì tính tương quan tuyenestinsh giữa 2 biến càng mạnh 
+# Các điểm càng nằm sát trên cùng 1 đường thẳng thì tính tương quan tuyến tính giữa 2 biến càng mạnh 
 # Biểu đồ nhiệt thể hiện tính tương quan giữa 2 biến bởi màu sắc của các ô quan sát
 # Biểu đồ tán xạ thường được dùng trong trường hợp số lượng biến ít (< 10)
 # Biểu đồ nhiệt hay được dùng trong trường hợp số lượng biến nhiều
-
-library(ICSNP)
+# install.packages("LASERI")
+library(LASERI)
 data("LASERI")
 names(LASERI)
 View(LASERI)
-cor(LASERI[, 25:28])
+attach(LASERI)
+cor(LASERI[,12:28])
 
-# Biểu đồ tán xạ cho các cặp biến trong các biến từ 12 - 28 của data LASERI
-pairs(LASERI[, 12:28], lwd = 1, pch = 16, cex = .5, col = "red",
-       gap = 0, xaxt = "n", yaxt = "n")
+#install.packages("reshape2")  # nếu chưa cài
+library(reshape2)
+
+#BIỂU ĐỒ TÁN XẠ CHO CÁC Cặp BIẾN TRONG CÁC BIẾN TỪ 12 -> 28 CỦA DATA LASERI, dùng khi t < 10
+
+pairs(LASERI[,12:28], lwd = 1, pch = 16, cex = .5, col = "red",
+      gap = 0, xaxt = "n", yaxt = "n"
+      #panel = panel.smooth #làm mịn
+      #,col.smooth = "blue"
+)
+# lwd: độ dày của đường viền trong biểu đồ, mặc định là 1
+# pch: kiếm đấu chấm, các điểm
+# cex: kích thước của các điểm
+# gap: khoảng trống giữa các scatter plot
+# panel: Vẽ đường mượt, cho quan sát trong mỗi scatter plot (Đồ thị tán xạ)
+# col.smooth = "blue": màu của đường mượt
+
+# pairs() tạo scatter plot matrix, vẽ tất cả các cặp biến với nhau.
+# Biểu đồ tán xạ thể hiện mối quan hệ giữa các biến, quan hệ tuyến tính giữa các cặp biến, nếu các điểm nằm gần đường chéo -> tương tác mạnh
+
+#Biểu đồ hiệt: thường dùng khi số biến >10
+#caculate correelation coefficients, rounded to 2 decimal places
+# Vẽ heatmap ma trận tương quan
+cor_df <- round(cor(LASERI[,12:28]),2) #xem xét tương quan tt giữa các biến 
+cor_df
+
+#melt the data frame: Chuyển ma trận từ dạng ma trận vuông thành các dạng khác dài hơn để dùng gptlog2
+melted_cor <- melt(cor_df)
+melted_cor #dua ma tran cor ve 1 ma tran voi gia tri cung duy nhat 1 cot
+#view head of melted data frame
+head(melted_cor)
+#library(ggplot2)
+#create correlation heatmap
+
+
+
+ggplot(data = melted_cor, aes(x = Var1, y = Var2, fill = value)) + #data+khung vẽ
+  geom_tile() + #khung có màu xanh nhiều mức
+  #geom_text(aes(Var2, Var1, label = value), size=2)+
+  #gtri tương quan từng ô
+  scale_fill_gradient2(low = "blue", high = "red", 
+                      limit = c(-1,1),
+                      name = "correlation") +
+  #đổi màu ô và thay đổi độ dài trục chú thích
+  theme(axis.title.x = element_blank(), #bó tên trục Var, Va
+        axis.title.y = element_blank(),
+        panel.background = element_blank())
+# 3D Scatterplot
+#instal1.packages("plotly"', lib="C:/R/R-4.3.0/1ibrary")
+# install.packages("plotly")
+# 2. 3D scatterplot với plotly
+library(plotly)
+plot_ly(data = mtcars, x = ~mpg, y = ~hp, z = ~cyl, color = ~gear,
+        type = "scatter3d", mode = "markers")
+
+# 3. 3D scatterplot với scatterplot3d
+library(scatterplot3d)
+scatterplot3d(mtcars[, c("mpg", "hp", "cyl")])
 ```
 
 ```{r}
 # Biểu đồ nhiệt thường dùng khi số biến > 10
-
+# Biểu đồ pairs() biểu đồ phân tán theo cặp, mỗi ô trong plot là một biểu đồ tán xạ. Các điểm dữ liệu thô, khám phá  sâu từng cặp biến, nhìn vào đường pannel để đánh giá mức độ quan hệ, đi lên -> tăng, mạnh...
+# Biểu đồ nhiệt: Trình bày ma trận tương quan một cách cô đọng, giúp nhanh chóng xác định các mối quan hệ đáng chú ý nhất, đặc biệt khi có rất nhiều biến.
 ```

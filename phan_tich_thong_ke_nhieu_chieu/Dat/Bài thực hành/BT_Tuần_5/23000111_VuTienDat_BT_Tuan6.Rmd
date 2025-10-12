@@ -1,0 +1,179 @@
+---
+title: "23000111_VuTienDat_BT_Tuan_6"
+author: "VuTienDat"
+date: "2025-10-10"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document: default
+mainfont: Times New Roman
+---
+
+```{r}
+# Bài 1:
+# Sử dụng câu lệnh set.seed(100) và sinh mẫu ngẫu nhiên gồm 100 quan sát tuân theo
+#phân phối chuẩn 3 chiều với giá trị trung bình (0,0,1)′ và ma trận hiệp phương sai
+
+set.seed(100)
+n = 100
+m = c(0, 0, 1)
+s = c(1, .8, .6, .8, 1, .8, .6, .8, 1)
+sigma = matrix(s, nrow = 3, byrow = T)
+View(sigma)
+
+# Sinh mẫu ngẫu nhiên theo pp chuẩn:
+# C1: dùng mvrnorm của MASS
+library(MASS)
+matrix1 = mvrnorm(n = n, mu = m, Sigma = sigma)
+head(matrix1)
+# C2: dùng gói mvtnorm
+library(mvtnorm)
+matrix2 = rmvnorm(n = n, mean = m, sigma = sigma)
+head(matrix2)
+# C3: dùng gói nrnorm
+library(mnormt)
+matrix3 = rmnorm(n = n, mean = m, varcov = sigma)
+head(matrix3)
+
+#a. Đặt tên các biến lần lượt là A, B và C. Thêm một biến D vào mẫu trên, D gồm 100
+# quan sát được sinh ngẫu nhiên biết nó tuân theo phân phối chuẩn với hai tham số 0.5 và 0.5.
+
+(data_d = rnorm(n = n, mean = 0.5, sd = 0.5))
+df = data.frame(A = matrix1[, 1], B = matrix1[, 2], C = matrix1[ , 3], D = data_d)
+View(df)
+
+#b. Tính giá trị trung bình mẫu, ma trận tương quan mẫu và ma trận hiệp phương sai mẫu.
+attach(df)
+
+# Trung bình mẫu
+colMeans(df)
+# Ma trận hiệp phương sai mẫu
+cov(df)
+# Ma trận tương quan mẫu:
+cor(df)
+
+
+#c.  Vẽ biểu đồ phân tán của các biến và biểu đồ nhiệt của ma trận tương quan mẫu.
+# Biểu đồ phân tán
+pairs(df, main = "Biểu đồ phân tán các biến A, B, C, D", pch = 19, col = "blue", xaxt = "n", yaxt = "n", cex = 0.8, panel = panel.smooth)
+
+# lwd: độ dày của đường viền trong biểu đồ, mặc định là 1
+# pch: kiếm đấu chấm, các điểm
+# cex: kích thước của các điểm
+# gap: khoảng trống giữa các scatter plot
+# panel: Vẽ đường mượt, cho quan sát trong mỗi scatter plot (Đồ thị tán xạ)
+# col.smooth = "blue": màu của đường mượt
+
+# Biểu đồ nhiệt:
+cor_df = round(cor(df), 2)
+cor_df
+# install.packages("reshape2")
+library(reshape2)
+melted_cor = melt(cor_df)
+melted_cor # Chuyển về dạn 3 cột, var1, var2, value  (sang dạng dài), ggplot không vẽ heatmap trực tiếp từ ma trận vuông
+
+# install.packages("ggplot2")
+library(ggplot2)
+ggplot(data = melted_cor, aes(x = Var1, y = Var2, fill = value)) + #data+khung vẽ
+  geom_tile(color = "white") + # Mỗi ô có viền trắng
+  #geom_text(aes(Var2, Var1, label = value), size=2)+
+  #gtri tương quan từng ô
+  scale_fill_gradient2(low = "blue", high = "red", 
+                      limit = c(-1,1), # giới hạn giá trị màu từ -1 đến 1 vì hệ số tương quan nằm trong [-1, 1]
+                      name = "correlation") + # Hiển thị thang màu
+  ggtitle("Biểu đồ nhiệt ma trận tương quan") + 
+  #đổi màu ô và thay đổi độ dài trục chú thích
+  theme(axis.title.x = element_blank(), #bỏ tên trục x
+        axis.title.y = element_blank(), # Bỏ tên trục y
+        panel.background = element_blank()) # bỏ nền mặc định của panel
+```
+
+```{r}
+# Bài 2: Tập dữ liệu Smartket trong thư viện ISLR gồm 9 biến số được đo trong 1250 thời điểm từ năm 2001 đến 2005 của thị trường chứng khoán S&P. Xét vecto X gồm các biến định lượng trong tập dữ liệu.
+# install.packages("ISLR")
+library(ISLR)
+data(Smarket)
+str(Smarket)
+head(Smarket)
+attach(Smarket)
+
+x <- Smarket[, -9]
+head(x)
+#1. Tính giá trị trung bình mẫu, ma trận tương quan mẫu và ma trận hiệp phương sai mẫu của X.
+mean_x = colMeans(x)
+print(mean_x)
+
+cor_x =  cor(x)
+print(cor_x)
+
+cov_x = cov(x)
+cov_x
+
+#2. Vẽ biểu đồ phân tán của các biến và biểu đồ nhiệt của ma trận tương quan mẫu của X
+? pairs()
+pairs(x, main = "Biểu đồ phân tán", pch = 16, col = "blue", xaxt = "n", yaxt = "n", cex = 0.8, panel = panel.smooth)
+
+
+melted_cor = melt(cor_x)
+head(melted_cor)
+
+ggplot(data = melted_cor, aes(x = Var1, y = Var2, fill = value)) + geom_tile(color = "White") + #geom_text(aes(label = value), size = 3) 
+scale_fill_gradient2(low = "blue", high = "red", limit = c(-1, 1), name = "Corelation") +
+ggtitle("Biểu đồ nhiệt") +
+theme(axis.title.x = element_blank(), #bỏ tên trục x
+        axis.title.y = element_blank(), # Bỏ tên trục y
+        panel.background = element_blank()) # bỏ nền mặc định của panel
+
+
+#3. Có sự khác biệt giữa lợi nhuận trung bình một ngày trước và ba ngày trước ngày đang xét không?
+# Lợi nhuận trung bình 1 ngày trước
+# Kiểm tra lag1 có tuân theo pp chuẩn không 
+# Bài toán:
+# H0: lag1 tuân theo pp chuẩn
+# H1: lag1 không tuân theo phân phối chuẩn
+shapiro.test(Lag1)
+# KL: p-value < 0.05 -> Bác bỏ H0. Lag1 không tuân theo pp chuẩn
+# Lợi nhuận trung bình 3 ngày trước
+# Kiểm tra lag3 có tuân theo pp chuẩn ko
+(mean_lag3 = mean(Lag3))
+# Bài toán:
+# H0: lag3 tuân theo pp chuẩn
+# H1: lag3 không tuân theo phân phối chuẩn
+shapiro.test(Lag3)
+# KL: p-value < 0.05 -> Bác bỏ H0. Lag3 không tuân theo pp chuẩn
+
+# Bài toán:
+# H0: Ex1 = Ex2
+# H1: Ex1 != Ex2
+# Ex1: là giá trị trung bình của lag1, Ex2: là giá trị trung bình của lag3
+# Do Lag1 và Lag3 không tuân theo phân phối chuẩn -> Wilcox.text
+wilcox.test(Lag1, Lag3, paird = F)
+# KL: Do p-value > 0.05 nên chấp nhận H0. Vậy không có sự khác biệt giữa lợi nhuân trung bình một ngày trước và ba ngày trước
+
+#4. Lợi nhuận trung bình tại ngày đang xét và các ngày trước đó có thực sự khác (0,0)′không?
+# Dùng hàm HotellingT2 kiểm định xem GTTB của
+# (Today, Lag1, Lag2, Lag3, Lag4, Lag5 có thực sự khác (0,0,0,0,0,0) không ? - 1 Mẫu)
+# install.packages("ICSNP")
+library(ICSNP)
+# H0: Ex = (0,0,0,0,0,0) với H1: Ex != (0,0,0,0,0,0)
+x = Smarket[, c("Today", "Lag1", "Lag2", "Lag3", "Lag4", "Lag5")]
+head(x)
+HotellingsT2(x)
+
+# Nx: do p-value > 0.05 nên chấp nhận H0. KL:Lợi nhuận trung bình tại ngày đang xét và các ngày trước có khác (0,0,0,0,0,0)
+
+#5. Kiểm định xem có sự khác biệt giữa năm 2004 và 2005 về lợi nhuận trung bình tạingày đang xét và các ngày trước đó không?
+# Bài toán: 
+# H0: E(2004) = E(2005) (E(Today2004) = E(Today2005), E(Lag1_2004) = E(Lag2_2004)...)
+# H1: E(2004) != E(2005) (E(Today2004) != E(Today2005), E(Lag1_2004) != E(Lag2_2004)...)
+vars = c("Today", "Lag1", "Lag2", "Lag3", "Lag4", "Lag5")
+x_2004 = Smarket[Year == 2004, vars]
+x_2005 = Smarket[Year == 2005, vars]
+? HotellingsT2()
+HotellingsT2(x_2004, x_2005, paired = F)
+#Nx: do p-value > 0.05 nên bác bỏ H0. Vậy có sự khác biệt giữa năm 2004 và 2005 về lợi nhuận trung bình tại ngày đang xét và các ngày trước đó
+```
+
+```{r}
+
+```

@@ -1,0 +1,192 @@
+---
+title: "Lý thuyết tuần 5"
+author: "Nguyễn Thị Hiền Trang"
+date: "2025-10-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+#2. vecto nn: Cho vec-tơ nn Z = (z1, z2) có phân bố chuẩn 2 chiều với 
+#* Véc-tơ kỳ vọng mu = (0.5, 1)^T
+#* #* Ma trận hiệp phương sai sigma = [1 0.5
+#*                                    0.5 1]
+#a. Trước tiên sinh 500 quan sát từ phân bố chuẩn nhiều chiều
+#~N(m,S) như sau
+library(MASS)
+#Xác định véc-tơ trung bình và ma trận hiệp phương sai
+m <- c(0.5, 1.0)
+(S <- matrix(c(1, 0.5, 0.5, 1), nrow = 2))
+#Sinh mẫu từ phần phối chuẩn đa chiều
+n = 500
+set.seed(123)
+samples <- mvrnorm(n, mu = m, Sigma = S) #C1-Hàm sinh mẫu
+print(samples)
+head(samples)
+
+#b. Với dữ liệu vừa sinh ra ta biểu diễn dưới dạng đồ thị tán xạ
+#Kết hợp cùng các đuonwgf mặt mức.
+#Để vẽ các đồ thị thuận tiện ta sẽ sử dụng gói lệnh ggplot2.
+#install.packages("ggplot2")
+library(ggplot2)
+#Chuyển đổi mẫu thành data.frame để sử dụng với ggplot2
+samples_df <- data.frame(Z1 = samples[,1], Z2 = samples[,2])
+#Vẽ biểu đồ tán xạ
+ggplot(samples_df, aes(x = Z1, y = Z2)) + 
+  geom_point(color = "blue", alpha = 0.6) #Đồ thị tán xạ
+
+#Vẽ đồ thị tán xạ kết hợp với đường mặt mức 
+ggplot(samples_df, aes(x = Z1, y = Z2)) +
+  geom_point(color = "blue", alpha = 0.6) + #Đồ thị tán xạ
+  stat_density_2d(aes(fill = ..level..),
+                  geom = "polygon",
+                  color = "orange",
+                  bins = 15) +
+#đường mặt mứcL (z-mu)^T Sigma^{-1} (z-mu) = c^2 = x^2_k(alpha)
+    #(phân vị khi bình thường)
+#đồ thị chứa các đường (hoặc các vùng màu sắc) kết nối các điểm có cùng giá trị hàm mật độ (hoặc xác suất).
+#Mặt mức giúp minh họa sự phân bố của dữ liệu trong kgoong gian 2 chiều.
+    scale_fill_gradient(low = "lightblue",
+                        high = "darkblue") + #Màu sắc mặt mức
+    labs(title = "Đồ thị tán xạ cùng đường mặt mức", x = "Z1", y = "Z2")+ 
+    theme_minimal()
+
+#3. Mẫu ngẫu nhiên nhiều chiều 
+#Để sinh dữ liệu mô phỏng phân bố chuẩn nhiều chiều ta sử dụng gói lệnh mvtnorm.
+#install.packages("mvtnorm")
+library(mvtnorm)
+set.seed(1)
+X = rmvnorm(50, mean = c(0,0), sigma = matrix(c(1,.8,.8,1), nrow = 2)) #C2
+X
+#sinh nn 50 quan sat  co pp chuan nhieu chieu N(mean, sigma)
+head(X)
+colMeans(X) #Trung bình mẫu
+cov(X) #Ma trận hiệp phương sai mẫu
+cor(X) #Ma trận tương quan mẫu 
+#Ngoài ra, ta có thể sử dụng gói lệnh mnormt như sau:
+#install.packages("mnormt")
+library(mnormt)
+set.seed(1)
+#Định nghĩa trung bình và ma trận hiệp phương sai
+mu <- c(0,0)
+sigma <- matrix(c(1, 0.8, 0.8, 1), nrow = 2)
+#sinh 50 mẫu nn từ phân phối chuẩn nhiều chiều
+X <- rmnorm(50, mean = mu, varcov = sigma) #C3
+print(X) # In ra các mẫu đã sinh
+#Tính toán trung bình mẫu,, ma trận hiệp phương sai và ma trận tươg quan 
+mean_X <- colMeans(X) #Trung bình mẫu
+cov_X <- cov(X) #Ma trận hiệp phương sai mẫu
+cor_X <- cor(X) #Ma trận tương quan mẫu
+#Tạo lưới cho đồ thị contour-đồ thị mặt mức
+x1_seq <- seq(-3, 3, length.out = 100)
+y1_seq <- seq(-3, 3, length.out = 100)
+grid <- expand.grid(x1 = x1_seq, y1 = y1_seq)
+grid
+#Tính toán mật độ xác suật cho lưới
+grid$z <- apply(grid, 1, function(row)
+dmnorm(row, mean = mean_X, varcov = cov_X))
+grid$z 
+#Vẽ điif thị contour
+#png("contour_plot.png", width = 800, height = 600) Mở tệp PNG
+contour(x1_seq, y1_seq,
+        matrix(grid$z,nrow = 100),
+        main = "Contour plot of Multivariate Normal Distribution",
+        xlab = "X1", ylab = "X2")
+#dev.off() #Đóng tệp PNG
+#3.1. KD giá trị trung bingf 2 mẫu 1 chiều
+#install.packages("ICSNP")
+library(ICSNP)
+?LASERI
+data(LASERI)
+#Kiểm định tính chuẩn của biến HRT2 và HRT3 của data LASERI?
+#Nếu 2 biến đều chuẩn thì dùng hàm t.test() để kiểm định xem:
+#1. gttb của HRT2 và HRT3 bằng nhau ko? myn 5%
+shapiro.test(LASERI$HRT2)
+t.test(LASERI$HRT2, LASERI$HRT3, paired = TRUE)
+
+#2. gttb của HRT2 nhỏ hơn HRT3 ko? myn = 2%
+t.test(LASERI$HRT2, LASERI$HRT3, paired = TRUE, alt = "less", conf.level = 0.98)
+
+#Biết so sánh theo cặp
+#chỉ số sức cản mạch hệ thống TB(SVRIT1T4)
+##tốc độ sóng mạch TB(PWVT1T4)
+names(LASERI[,25:28])
+colMeans(LASERI[,25:28])
+cov(LASERI[,25:28])
+#DÙng hàm HotellingsT2 để kiểm định xem GTTB cyar 
+##1.(HRT1T4, COT1T4, SVRIT1T4, PWVT1T4) có thực sự khác (0,0,0,0) ko? - 1 mau
+HotellingsT2(LASERI[,c("HRT1T4", "COT1T4", "SVRIT1T4", "PWVT1T4")])
+#H0: EX=(0,0,0,0) với H1: EX != (0,0,0,0)
+##2. (HRT1, COT1, SVRIT1, PWVT1) có thực sự khác (HRT4, COT4, SVRIT4, PWVT4) ko? - 2 mau
+HotellingsT2(LASERI[,c('HRT1', 'COT1', 'SVRIT1', 'PWVT1')],
+             LASERI[,c('HRT1', 'COT4', 'SVRIT4', 'PWVT4')],
+             paired = TRUE)
+#H0: E(HRT1) = E(HRT4), E(COT1) = E(COT4), E(SVRIT1) = E(SVRIT4), E(PWVT1) = E(PWVT4)
+#H1: ngược lại
+
+#Vẽ biểu đồ tán xạ, biểu đồ nhiệt
+#Biểu dôdf tán xạ và biểu đồ nhiệt đều dùng để quan sát trực quan mối quan hệ tươgn quan giưaux các cặp biến
+#hệ tương quan giưuax các cặp biến
+#Biểu đồ tán xạ gồm các cặp điểm tưogn ứng với các cặp biến được xét, các điểm canngf nằm sắt trên cùng 1 dường thẳng thì tính tương quan tt giưuax 2 biến càng mạnh 
+#biểu đồ nhiệt thể hiện tính tương quan giữa hai biến bởi màu sắc của các ô quan sát 
+#Biểu đồ tán xạ thường được dùng trong trường hợp số lượng biến ít (<10)
+#Biểu đồ nhiệt hay được dùng trong trường hợp số lượng biến nhiều
+library(INSNP)
+data(LASERI)
+names(LASERI)
+View(LASERI)
+cor(LASERI[,225:28])
+#BIỂU ĐỒ TÁN XẠ CHO CÁC CPAJW BIẾN TRONG CÁC BIẾN TỪ 12 -> 28 CỦA DATA LASERI
+pairs(LASERI[,12:28], lwd = 1, pch = 16, cex = .5, col = "red",
+      gap = 0, xaxt = "n", yaxt = "n"
+      #panel = panel.smooth #làm mịn
+      #,col.smooth = "blue
+)
+#Biểu đồ hiệt: thường dùng khi số biến >10
+#caculate correelation coefficients, rounded to 2 decimal places
+cor_df <- round(cor(LASERI[,12:28]),2) #xem xét tương quan tt giữa các biến 
+cor_df
+#melt the data frame
+melted_cor <- melt(cor_df)
+melted_cor #dua ma tran cor ve 1 ma tran voi gia tri co o cung duy nhat 1 cot
+#view head of melted data frame
+head(melted_cor)
+library(ggplot2)
+#create correlation heatmap
+ggplot(data = melted_cor, aes(x = Var1, y = Var2, fill = value)) + #data+khung vẽ
+  geom_tile() + #khung có màu xanh nhiều mức
+  #geom_text(aes(Var2, Var1, label = value), size=2)+
+  #gtri tương quan từng ô
+  scale_fill_gradient2(low = "blue", high = re, 
+                      limit = c(-1,1),
+                      name = "correlation") +
+  #đổi màu ô và thay đổi độ dài trục chú thích
+  theme(axis.title.x = element_blank(), #bó tên trục Var, Va
+        axis.title.y = element_blank(),
+        panel.background = element_blank())
+# 3D Scatterplot
+#instal1.packages("plotly"', lib="C:/R/R-4.3.0/1ibrary")
+#install.packages("plotly")
+library(plotly)
+attach(mtcars)
+plot_ly(data = mtcars, x = ~ mpg, y = ~hp, z = ~cy1,
+        color = ~gear)
+install.packages("scatterplot3d")
+library("scatterplot3d") #load
+scatterpllot3d(mtcars[,c("mpg", "hp", "cyl")])
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
