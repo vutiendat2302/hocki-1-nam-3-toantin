@@ -1,0 +1,73 @@
+---
+title: "bai_tap_thuc_hanh_tuan_6"
+author: "VuTienDat"
+date: "2025-10-17"
+output: html_document
+---
+
+```{r}
+# Bài 2:
+# 2. Sinh 500 quan sát từ phân bố chuẩn nhiều chiều với:
+# • Véc-tơ kỳ vọng μ = (3, 5)T
+# • Ma trận hiệp phương sai Σ = 
+# 2 0.5
+# 0.5 1
+# Mô phỏng dữ liệu vừa sinh bằng biểu đồ tán xạ (scatterplot) và biểu đồ tần số/tần suất
+#(histogram) với gói lệnh ggplot2. Sau đó tính toán và giải thích hiệp phương sai và tương
+#quan.
+install.packages("MASS")
+library(MASS)
+set.seed(1)
+
+mu = c(3, 5)
+Sigma = matrix(c(2, 0.5, 0.5, 1), ncol = 2) # Ma trận hiệp phương sai
+samp = mvrnorm(n = 500, mu = mu, Sigma = Sigma) # Sinh 500 mẫu quan sát
+data = as.data.frame(samp)
+colnames(data) = c("X1", "X2")
+head(data)
+
+
+# Biểu đồ tán xạ (Scatter plot)
+library(ggplot2)
+ggplot(data,aes(x = X1, y = X2)) + 
+  geom_point(color = "steelblue") +
+  theme_minimal() +
+  labs(title = "Biểu đồ tán xạ giữa X1 và X2")
+
+# Biểu đồ histogram:
+ggplot(data, aes(x = X1)) +
+         geom_histogram(bins = 30, fill = "skyblue", color = "black") + 
+         theme_minimal() + 
+         labs(title = "Histogram của X1")
+
+ggplot(data, aes(x = X2)) + 
+  geom_histogram(bins = 30, fill = "salmon", color = "black") + 
+  theme_minimal() + 
+  labs(title = "Histogram in X1")
+
+# Tính hiệp phương sai và tương quan:
+
+cov_matrix = cov(data)
+cov_matrix
+
+cor_matrix = cor(data)
+
+```
+
+```{r}
+# Bài 3:
+
+```
+
+```{r}
+# Bài 4:
+
+```
+
+```{r}
+# Bài 5:
+set.seed(100)
+mu = c(0,0,1)
+Sigma = c
+
+```

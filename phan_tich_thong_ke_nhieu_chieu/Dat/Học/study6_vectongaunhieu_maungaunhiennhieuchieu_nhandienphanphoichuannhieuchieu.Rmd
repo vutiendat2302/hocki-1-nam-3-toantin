@@ -1,0 +1,105 @@
+---
+title: "study7_vectongaunhien_maungaunhiennhieuchieu_nhandienphanphoichuannhieuchieu"
+author: "VuTienDat"
+date: "2025-10-17"
+output: html_document
+---
+
+### Nhận diện phân phối chuẩn nhiều chiều
+
+### Mẫu ngẫu nhiên nhiều chiều
+
+### Vecto ngẫu nhiêns
+
+```{r}
+# Nhận dạng dữ liệu có phân phối chuẩn hay không đượ thực hiện qua 2 bước:
+# BƯớc 1: Xem từng biến trong dữ liệu có phân bố chuẩn hay không?
+candy = read.table("C:\\Users\\admin\\Downloads\\candy.txt", header = T)
+head(candy)
+dim(candy)
+colMeans(candy[, -1])
+candy = candy[, -1] # Bỏ đi cột name do dữ liệu ko phải numetric
+# Kiếm định tính chuẩn của từng biến bằng kiểm định Shapiro-wilk
+sapply(colnames(candy), function(x) {shapiro.test(candy[[x]])}) # Kiểm định cho nhiều cột bằng sapply
+shapiro.test(candy$Calories) # kiểm định chuẩn cho một cộ
+
+# Bài toán:
+# H0: Viết chung cho tất cả các biến
+# H1:
+# Do ... KL: biến này ...
+# Những biến có tính chuẩn 1 chiều là: satfat, sugar
+dim(candy)
+
+# Nếu trong bài toán nhiều chiều có một biến ko có tính chuẩn 1 chiều> KL bài toán không tuân theo phân phối chuẩn nhiều chiều
+
+# Bước 2: Kiểm tra phân phối chuẩn đồng thời của dữ liệu:
+# a. Thống kê D2 còn được gọi là khoảng cách Mahalanobis là một cách thuận tiện 
+#để biểu diễn khoảng cách giữa một quan sát Yi và trung bình nhiều chiều Y
+# Mahalanobis distance: D2i = (y1 - y_n)` S^(-1) (yi - yh). (7.13): Khoảng cách giữa Y_i và Y
+# Tính khoảng cách Mahalanobis là khoảng cách từ tâm đến vùng dữ liệu
+mah = mahalanobis(candy, colMeans(candy), var(candy))
+mah
+# Do dữ liệu có 6 cột nên ta sẽ so sánh các khoảng cách Mahalanobis đã 
+# Sắp xếp với phân phối khi bình phương (X mũ 2: Kh Khi bình phương) với 6 bậc tự do
+# Sắp xếp các khoảng cách Mahalanobis
+sort(mah)
+# QQ -plot về khoảng cách Mahalanobis của dữ liệu
+qqplot(
+  qchisq((1:nrow(candy) - 1/2) / nrow(candy), df = 6), sort(mah))
+abline(a = 0,  b = 1, col = "red")
+
+# Chuẩn 1 chiều hết ròi thì các điểm sẽ ở trên đường thẳng hết
+
+# Từ biểu đồ này, ta có thể tháy rằng dường như các giá trị dữ liệu tuân theo phân phối chuẩn nhiều chiều
+
+#b. Ta có thể kiểm rta tính chuẩn của khoảng cách mahalanobis bằng cách chuyển khoảng cách
+# Mahalanobis từ các giá trị khi bình phương thành các phân vị chuẩn.
+?qnorm # Hàm phân vị: Tìm a biết P(X < a) = 0.9
+?pchisq # Hàm phân phối: Tìm P(X < x).
+shapiro.test(qnorm(pchisq(mah, 6)))
+# Các khoảng cách Mahalanobis sau khi chuyển đổi có thể tuân theo phân phối chuẩn.
+# Kiểm tra tính chuẩn của khoảng cách Mahaalannobis (bằng đồ thị QQ và kiểm định Shapiro.test)
+# Giúp đánh giá xem liệu dữ liệu có tuân theo phân phối chuẩn đa biến hay không.
+# Nhưng nó không phải là một kiểm định chính thức cho tính chuẩn đa chiều.
+
+# -> Dùng mshapiro.test
+
+# Sau nếu đề bài không yêu cầu maharalobis thì dùng luôn hàm shapiro.test để kiểm tra tính chuẩn nhiều chiều, shapiro.test khi thêm mshapiro.test -> kiểm định cho nhiều chiều
+
+#c. Một kiểm định cho phân phối chuẩn nhiều chiều là một tổng quát
+# hóa của kiểm định Shapiro-Wilk cho QQ - plot. Các package mvnormtest
+# và mvShapiroTest đều chung cấp kiểm định Shapiro-Wilk nhiều chiều.
+install.packages("mvnormtest")
+library(mvnormtest)
+# Nhớ phải chuyển vị ma trận vì nó coi các hàng là các biến chứ không phải các cột là các biến
+mshapiro.test(t(candy))
+
+# Bài toán:
+#... KL: không tuân theo phân phối chiều
+
+# Hàm manova để so sánh nhiều giá trị trung bình
+#2. So sánh gttb của K vecto nn m (>= 2) chiều:
+# y cầu ma trận hiệp phương sai của các nhóm là như nhau:
+# và các biến phụ thuộc của mỗi nhóm có tính chuẩn nhiều chiều
+head(iris)
+levels(iris$Species)
+# Gọi mu1, mu2, mu3 lần lượt là gttb về (Speal.length, Speal.width, Petal.length, petal.width) của ba loài hoa: setossa, versicolor, virginica.
+# Bài toán:
+# H0: mu1 = mu2 = mu3
+# H1: ngược lại
+# mu1 = (mu1_1, mu1_2, mu1_3, mu1_4) với mu1_1 là gttb Sepal.length của setosa
+# MANOVA TEST
+res.man = manova(cbind(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width) ~ Species, data = iris)
+summary(res.man, test = "Wilks") # Dùng Wilks Lambda
+# Đa biến: kháu nhau
+# Xem xét gttb khác nhau cụ thể ở những biến nào ?
+
+# Do p_value < 0.05 KL: có sự khác biệt 
+# Để xem khác biệt như nào dùng summary.aov
+summary.aov(res.man) # Đơn biến: Xem xét 4 bài toán riêng lẻ:
+
+#H0: mu1_i = mu_i2 = mu_i3 ( i = 1,2,3,4)
+#KL: gttb từng biến của 3 loài hoa là khác nhau
+
+
+```
