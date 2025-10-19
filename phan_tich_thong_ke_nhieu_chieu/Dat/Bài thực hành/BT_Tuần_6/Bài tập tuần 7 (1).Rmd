@@ -1,0 +1,218 @@
+---
+title: "Bài tập tuần 7"
+author: "Vũ Tiến Dạt"
+date: "2025-10-17"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document: default
+mainfont: Times New Roman
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Bài 1 
+
+```{r}
+library(MASS)
+data("hills")
+head(hills)
+
+#(a) Tìm giá trị trung bình và độ lệch tiêu chuẩn của độ dài các đường đua, độ cao đạt
+#được và thời gian chạy của người chiến thắng.
+summary(hills)
+sapply(hills, mean)
+sapply(hills, sd)
+#(b) Các biến trong bộ dữ liệu có tuân theo phân phối chuẩn không?
+shapiro.test(hills$dist)
+#BT: H0: dist tuân theo phân phối chuẩn vs H1: dist ko tuân theo pp chuẩn 
+#p-value < 0.05 => bác bỏ H0 => dist ko tuân theo pp chuẩn 
+shapiro.test(hills$climb)
+shapiro.test(hills$time)
+
+#(c) Dùng hàm pairs để vẽ ma trận biểu đồ tán xạ cho bộ dữ liệu. Nêu nhận xét.
+pairs(hills)
+
+#(d) Có thể có biểu diễn tuyến tính của biến thời gian theo một hay hai biến còn lại? Vì
+#sao? Đưa ra mô hình hồi quy tuyến tính phù hợp.
+model1 <- lm(hills$dist ~ hills$time)
+summary(model1)
+#dist = 1.65 + 0.1*time
+
+model2 <- lm(hills$time ~ (hills$dist + hills$climb))
+summary(model2)
+#time = -8.99 + 6.21*dist + 0.01*climb
+
+#(e) Tính giá trị trung bình và phương sai của bình phương hiệu số giữa thời gian quan
+#sát và thời gian dự đoán theo mô hình ở ý. Bình phương hiệu số đó có phân phối
+#chuẩn không?
+binh_phuong <- residuals(model2)^2
+mean(binh_phuong)
+var(binh_phuong)
+
+shapiro.test(binh_phuong)
+#p-value = 5.258e-12 => bác bỏ H0 => ko pp chuẩn 
+
+#(f) Hãy kiểm tra tính chuẩn nhiều chiều của dữ liệu.
+library(mvnormtest)
+mshapiro.test(t(hills))
+```
+
+## Bài 2
+
+
+```{r}
+library(mvtnorm)
+library(ggplot2)
+m <- c(3,5)
+s <- matrix(c(2, 0.5, 0.5, 1), nrow = 2)
+samples <- mvrnorm(500, m, s)
+#View(samples)
+
+df <- data.frame(samples)
+colnames(df) <- c("X1", "X2")
+head(df)
+#Biểu đồ tán xạ 
+ggplot(df, aes(x = X1, y = X2)) +
+         geom_point(color = "blue", alpha = 0.6)
+#ko đều, khó tìm ra mối liên hệ của X1 và X2 
+
+#Biểu đồ Histogram cho X1
+?geom_histogram 
+ggplot(df, aes(x = X1)) +
+  geom_histogram(color = "black", fill = "lightblue", bins = 30)
+
+#Biểu đồ Histogram cho X2
+ggplot(df, aes(x = X2)) + 
+  geom_histogram(color = "black", fill = "lightgreen", bins = 30)
+#Ma trận hiệp phương sai 
+cov(df)
+#Ma trận tương quan
+cor(df)
+#nx: 
+```
+## Câu 3
+```{r}
+library(mvtnorm)
+library(mvnormtest)
+set.seed(123)
+c <- c(1,-1,3)
+s <- matrix(c(1,0.3,0.2,0.3,1,0.4,0.2,0.4,1), nrow = 3)
+X <- mvrnorm(1000, c, s)
+#View(X)
+
+#a.Tính toán giá trị tương quan mẫu theo từng cặp.
+df <- data.frame(X)
+colnames(df) <- c("A", "B", "C")
+#tương quan tuyến tính 
+cor(X)
+
+#b.
+D <- X[,1] + 2*X[,2] - 3*X[,3]
+X_est <- cbind(X,D)
+colnames(X_est) <- c("A", "B", "C", "D")
+View(X_est)
+#>0.05 
+mshapiro.test(t(X_est)) 
+```
+## Câu 4
+```{r}
+library(mvnormtest)
+library(ICSNP)
+data("pulmonary")
+head(pulmonary)
+
+#(a) Tính giá trị trung bình mẫu, ma trận tương quan mẫu và ma trận hiệp phương sai
+#mẫu của dữ liệu.
+colMeans(pulmonary)
+cor(pulmonary)
+cov(pulmonary)
+
+#(b) Vẽ ma trận biểu đồ tán xạ cho bộ dữ liệu và nêu nhận xét.
+pairs(pulmonary)
+
+#(c) Các biến trong bộ dữ liệu có tuân theo phân phối chuẩn không? Kiểm định tính chuẩn
+#nhiều chiều của dữ liệu bằng nhiều phương pháp.
+mshapiro.test(t(pulmonary))
+
+
+```
+## Câu 5 
+```{r}
+library(mvtnorm)
+library(ggplot2)
+library(reshape2)
+set.seed(100)
+
+#(a) Đặt tên các biến lần lượt là A, B và C. Thêm một biến vào mẫu trên, đặt tên D gồm
+#100 quan sát được sinh ngẫu nhiên biết nó tuân theo phân phối chuẩn với hai tham số
+#0.5 và 0.5.
+m <- c(0, 0, 1)
+S <- matrix(c(1, 0.8, 0.6,
+                  0.8, 1, 0.8,
+                  0.6, 0.8, 1), nrow = 3, byrow = TRUE)
+X <- rmvnorm(100, mean = m, sigma = S)
+colnames(X) <- c("A", "B", "C")
+D <- rnorm(100, mean = 0.5, sd = sqrt(0.5))
+data <- data.frame(X, D)
+
+#(b) Tính giá trị trung bình mẫu, ma trận tương quan mẫu và ma trận hiệp phương sai mẫu.
+colMeans(data)
+cov(data)
+cor(data)
+
+#(c) Vẽ biểu đồ phân tán của các biến và biểu đồ nhiệt của ma trận tương quan mẫu.
+pairs(data)
+
+cor_melt <- melt(cor(data))
+ggplot(cor_melt, aes(Var1, Var2, fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+                       midpoint = 0, limit = c(-1,1), name="Correlation") +
+  theme_minimal() +
+  ggtitle("Biểu đồ nhiệt của ma trận tương quan mẫu")
+
+#(d) Kiểm tra tính chuẩn nhiều chiều.
+mshapiro.test(t(data))
+```
+## Câu 6
+```{r}
+library(ISLR)
+data("Smarket")
+head(Smarket)
+str(Smarket)
+library(reshape2)
+library(ggplot2)
+
+#a.
+X <- Smarket[, c("Lag1", "Lag2", "Lag3", "Lag4", "Lag5", "Volume", "Today")]
+colMeans(X)
+cov(X)
+cor(X)
+
+#(b) Vẽ biểu đồ phân tán của các biến và biểu đồ nhiệt của ma trận tương quan mẫu của X.
+pairs(X)
+
+cor_melt <- melt(cor(X))
+
+ggplot(cor_melt, aes(Var1, Var2, fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+                       midpoint = 0, limit = c(-1,1), name="Correlation") +
+  theme_minimal() +
+  ggtitle("Biểu đồ nhiệt ma trận tương quan mẫu")
+
+
+#(c) Kiểm tra tính chuẩn nhiều chiều của X.
+mshapiro.test(t(X[1:500,])) 
+
+#(d) Có sự khác biệt giữa lợi nhuận trung bình một ngày trước và ba ngày trước ngày đang
+#xét không?
+t.test(X$Lag1, X$Lag3, paired = TRUE)
+
+#(e) Lợi nhuận trung bình tại ngày đang xét và các ngày trước đó có thực sự khác 0 không?
+```
+
+

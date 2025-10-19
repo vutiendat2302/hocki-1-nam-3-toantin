@@ -6,6 +6,96 @@ output: html_document
 ---
 
 ```{r}
+# Bài 1:
+# .TậpdữliệuhillstrongthưviệnMASSgồmthờigiankỷlụccủa35cuộcđuatrên
+# cácngọnđồiởScottlandvàonăm1984.Vớimỗi cuộc đua trên từng ngọn đồi,bộ dữ liệu
+# cung cấp độ dài đường đua(dặm),độcaođạtđược(feet)vàthờigianchạycủangườidành
+# chiếnthắng(phút).
+
+# Tìmgiátrị trungbìnhvàđộ lệchtiêuchuẩncủađộdài cácđườngđua,độcaođạt
+# đượcvàthờigianchạycủangườichiếnthắng
+library(MASS)
+data("hills")
+head(hills)
+View(hills)
+
+#C1:
+colMeans(hills)
+
+#C2:
+summary(hills)
+sapply(hills, mean)
+sapply(hills, sd)
+
+
+#Cácbiếntrongbộdữliệucótuântheophânphốichuẩnkhông?
+# Bài toán: H0: dist, climb, time tuân theo phân phối chuẩn
+#           H1: dist, climb, time không tuân theo phân phối chuẩn
+
+attach(hills)
+#c1: Kiểm định từng biến 1
+shapiro.test(dist) 
+
+#C2: Dùng sapply
+? sapply
+sapply(colnames(hills), function(x) {shapiro.test(hills[[x]])})
+
+# Nx: Do p-value của dist, climb, time < 0.05 nên không thể bác bỏ H0. KL các 
+# biển trong bộ dữ liệu đều tuân theo phân phối chuẩn
+
+# Dùng hàm pairs để vẽ ma trận biểu đồ tán xạ chobộdữliệu.Nêunhậnxét:
+? pairs
+pairs(hills)
+# pairs(formula, data = NULL, ..., subset,
+      # na.action = stats::na.pass)
+# formula: Biểu thức công thức R: x + y + z: chỉ rõ các biến muốn vẽ
+
+# Có thể có biểu diễn tuyến tính của biến thời gian theomộthayhaibiếncònlại?Vì
+# sao?Đưaramôhìnhhồiquytuyếntínhphùhợp.
+
+# Bài toán: H0: alpha = 0
+#           H1: alpha != 0
+
+model1 = lm(dist ~ time)
+summary(model1)
+#dist = 1.65 + 0.1*time
+
+
+# Bài toán: H0: Không có mối quan hệ tuyến tính giữa thời gian chạy và hai biến còn lại
+#           H1: Có mói quan hệ tuyến tính
+
+model2 = lm(time ~ (dist + climb))
+summary(model2)
+#time = -8.99 + 6.21*dist + 0.01*climb
+
+# Tínhgiátrị trungbìnhvàphươngsai củabìnhphươnghiệusốgiữathời gianquan
+# sátvàthờigiandựđoántheomôhìnhởý(d).Bìnhphươnghiệusốđócóphânphối
+# chuẩnkhông
+
+? residuals
+# Residuals là một hàm chung dùng để trích xuất phần dư của mô hình từ các đối tượng được trả về
+res = residuals(model2)
+sqres = res^2
+mean(sqres)
+var(sqres)
+
+# Bài toán: H0: sqres tuân theo phân phối chuẩn
+#           H1: sqrest không tuân theo phân phối chuẩn
+
+shapiro.test(sqres)
+# Nx: Do p-value < 0.05 nên chấp nhận H0. KL: Tuân theo pp chuẩn
+
+# Hãykiểmtratínhchuẩnnhiềuchiềucủadữliệu
+library(mvnormtest)
+mshapiro.test(t(hills))
+
+# Bài toán: H0: Các biến tuân theo pp chuẩn nhiều chiều
+#           H1: Các biến không tuân theo pp chuẩn nhiều chiều
+# KL: do p-value <0.05 -> Chấp nhận H0
+
+```
+
+```{r}
 # Bài 2:
 # 2. Sinh 500 quan sát từ phân bố chuẩn nhiều chiều với:
 # • Véc-tơ kỳ vọng μ = (3, 5)T
@@ -15,7 +105,7 @@ output: html_document
 # Mô phỏng dữ liệu vừa sinh bằng biểu đồ tán xạ (scatterplot) và biểu đồ tần số/tần suất
 #(histogram) với gói lệnh ggplot2. Sau đó tính toán và giải thích hiệp phương sai và tương
 #quan.
-install.packages("MASS")
+# install.packages("MASS")
 library(MASS)
 set.seed(1)
 
@@ -27,12 +117,15 @@ colnames(data) = c("X1", "X2")
 head(data)
 
 
-# Biểu đồ tán xạ (Scatter plot)
+# Biểu đồ tán xạ (Scatter plot): Mô tả mối quan hệ giữa 2 biến x1 và x2.
 library(ggplot2)
 ggplot(data,aes(x = X1, y = X2)) + 
   geom_point(color = "steelblue") +
   theme_minimal() +
   labs(title = "Biểu đồ tán xạ giữa X1 và X2")
+
+# NX: nhìn chung các diểm dữ liệu phân tán mà ko tạo thành một đường thẳng hay một xu hướng rõ ràng -> mối quan hệ tuyến tính giữa x1 và x2 là rất yếu (ko tương quan). Việc biết giá trị x1 không giúp dự doán được giá trị x2
+# Một số điểm ngoại lai
 
 # Biểu đồ histogram:
 ggplot(data, aes(x = X1)) +
@@ -40,34 +133,248 @@ ggplot(data, aes(x = X1)) +
          theme_minimal() + 
          labs(title = "Histogram của X1")
 
+#NX: Hình dạng giống phân phối chuẩn, các giá trị tập trung ở trung tâm,
+# giá trị trung tâm nằm khoảng 3.0 - 3.5
+# Phạm vi dữ liệu: từ 0.0 đến 6.0 một số giá trị nằm ở ...
+
 ggplot(data, aes(x = X2)) + 
   geom_histogram(bins = 30, fill = "salmon", color = "black") + 
   theme_minimal() + 
-  labs(title = "Histogram in X1")
+  labs(title = "Histogram in X2")
+
+#Nx: Hình dạng chuông, giống phân phối chuẩn
+# Giá trị trung tâm: từ ...
+# Phạm vi dữ liệu từ ... 
 
 # Tính hiệp phương sai và tương quan:
 
+# Ma trận hiệp phương sai
 cov_matrix = cov(data)
 cov_matrix
 
+# Nx: 
+# Giá trị tại (X1, X1) là Phương sai (Variance) của X1, $Var(X1) \approx 2.10$.
+# Giá trị tại (X2, X2) là Phương sai (Variance) của X2, $Var(X2) \approx 1.05$.
+
+# Var(x1) lớn gấp đôi var(x2). Điều này có nghĩa là dữ liệu của biến x1
+# có độ phan tán lớn hơn so với x2
+
+# Giá trị tại (X1, X2) và (X2, X1) là Hiệp phương sai (Covariance) giữa X1 và X2, $Cov(X1, X2) \approx 0.44$.
+# Hiệp phương sai mang dấu dương -> xu hướng đồng biến (cùng tăng hoặc cùng giảm) giữa x1 và  x2
+
+# Ma trận tương quan
 cor_matrix = cor(data)
+cor_matrix
+
+# Nx: đường chéo chính luông bằng 1, vì một biến luôn tương quan chính nó
+# Hệ số tương quan giữa X1 và X2 là $r \approx 0.2998$ (hay $0.3$).
+# Dấu dương -> X1 và X2 đồng biến, 
+# r < 0.5: mối tương quan tuyến tính yếu
 
 ```
 
 ```{r}
 # Bài 3:
+# Sinh1000quansáttừphânbốchuẩn3-chiềuvới:
+# Véc-tơkỳvọngµ=(1,−1,3)T
 
+# MatrậnhiệpphươngsaiΣ=
+# 1 0.3 0.2
+# 0.3 1 0.4
+# 0.2 0.4 1
+
+library(MASS)
+set.seed(2)
+mu = c(1, -1, 3)
+Sigma = matrix(c(1,0.5,0.2,0.3,1,0.4,0.2,0.4,1), nrow = 3)
+data = mvrnorm(1000, mu, Sigma)
+View(data)
+
+# Tínhtoángiátrị tươngquanmẫutheotừngcặp
+df = data.frame(data)
+colnames(df) = c("A", "B", "C")
+View(df)
+
+# Tương quan tuyến tính
+cor(df)
+# Nx: Đồng biến
+# cor(a, b) tương quan tuyến tính dương, yếu
+# cor((a, c)
+# cor(b, c)
+
+# Giá trị tương quan sinh ra khá gần với các giá trị lý thuyết (0.3, 0.2, 0.4) -> Dữ liệu phản ánh đúng cấu trúc tương quan, dữ liệu sinh ra hợp lý theo phân phối chuẩn 3 chiều.
+
+# Đặttêncácbiếnlầnlượt làA,BvàC.ThêmmộtbiếnD=A+2B−3Cvàomẫu
+# trên.Hãykiểmtratínhchuẩnnhiềuchiềubằngnhiềuphươngpháp.
+D = df[,1] + 2 * df[,2] - 3 * df[, 3]
+df = cbind(df, D)
+colnames(df) = c("A", "B", "C", "D")
+View(df)
+
+#PP1: Dùng mshapio.test
+library(mvnormtest)
+mshapiro.test(t(df))
+# Bài toán: 
+#H0: Các biến tuân theo phân phối chuẩn nhiều chiều
+#H1: Các biến không tuân theo pp chuản nhiều chiều 
+# NX: ...
+
+
+#PP2: Dùng sapply
+sapply(colnames(df), function(x) {shapiro.test(df[[x]])}) # Kiểm tra từng biến có pp chuẩn ?
+# Bài toán: ...
+# Nx:...
+
+mah = mahalanobis(df, colMeans(df), var(df))
+mah
+sort(mah)
+qqplot(qchisq((1:nrow(df) - 1/2) /nrow(df), df = 4), sort(mah))
+abline(a = 0, b = 1, col = "red")
 ```
 
 ```{r}
 # Bài 4:
+# .BộdữliệupulmonarytrongthưviệnICSNPđo lườngsựthayđổi trongchức
+# năngphổicủa12côngnhânsaukhi tiếpxúcvớibụibôngtrong6giờ
+library(mvnormtest)
+#install.packages("ICSNP")
+library(ICSNP)
+data("pulmonary")
+head(pulmonary)
+
+#Tínhgiátrị trungbìnhmẫu,matrậntươngquanmẫuvàmatrậnhiệpphươngsai
+# mẫucủadữliệu
+colMeans(pulmonary)
+cor(pulmonary)
+# Nx: cor(FVC, FEV) = 0.927 (Tương quan thuận, RẤT MẠNH)
+# cor(FEV, CC) = -0.239 (Tương quan nghịch, YẾU) -> gần như ko quan hệ tuyến tính với nhau
+# cor(FVC, CC) = -0.534 (Tương quan nghịch, TRUNG BÌNH)
+cov(pulmonary)
+
+# Vẽmatrậnbiểuđồtánxạchobộdữliệuvànêunhậnxét.
+pairs(pulmonary, col = "blue", panel = panel.smooth)
+# Nx: Các điểm dữ liệu trông giống như một đám mây phân tán ngẫu nhiên, không có xu hướng tăng hay giảm rõ rệt. -> mối tương quan yếu giữa ...
+# Các điểm dữ liệu phân tán rộng hơn nhưng có xu hướng hơi đi xuống từ trái sang phải. mối tương quan nghịch (âm) ở mức độ trung bình giữa...
+# Các điểm dữ liệu tập trung rất chặt chẽ và đi theo một đường thẳng hướng lên.một mối tương quan thuận (dương) rất mạnh giữa FCV và FEV.
+
+
+# Các biến trong bộ dữ liệu có tuân theo phân phối chuẩn không? Kiểm định tính chuẩn
+# nhiều chiều của dữ liệu bằng nhiều phương pháp
+
+# C1:
+# Bài toán:
+#H0: 
+#H1:
+mshapiro.test(t(pulmonary))
+
+#C2: 
+sapply(colnames(pulmonary), function(x) {shapiro.test(pulmonary[[x]])})
+df = data.frame(pulmonary)
+View(df)
+mah = mahalanobis(df, colMeans(df), var(df))
+mah
+qqplot(qchisq((1:nrow(df) - 1/2)/ nrow(df), df = 3), sort(mah))
+abline(a = 0, b = 1, col = "red")
+#  Hãy kiểm định giả thuyết rằng giá trị trung bình trước và sau khi tiếp xúc bụi là không
+ #khác nhau
+# Bài toán: 
+# H0: Ex = 0 (ko có sự khác biệt)
+# H1: Ex != 0 (có sự khác biệt)
+HotellingsT2(pulmonary, mu = c(0, 0, 0))
+# Nx: Do p-value > 0.05 -> chấp nhận H0 -> Không có sự khác biệt
+
 
 ```
 
 ```{r}
 # Bài 5:
+#  Sử dụng câu lệnh set.seed(100) và sinh mẫu ngẫu nhiên gồm 100 quan sát tuân theo
+#phân phối chuẩn 3 chiều với giá trị trung bình (0,0,1)′ và ma trận hiệp phương sai
+# 1 .8 .6
+# .8 1 .8
+# .6 .8 1
+library(mvtnorm)
+library(ggplot2)
+library(reshape2)
 set.seed(100)
 mu = c(0,0,1)
-Sigma = c
+Sigma =  matrix(c(1, 0.8, 0.6,
+                  0.8, 1, 0.8,
+                  0.6, 0.8, 1), nrow = 3, byrow = TRUE)
+data = rmvnorm(100, mu, Sigma)
+View(data)
+# Đặt tên các biến lần lượt là A, B và C. Thêm một biến vào mẫu trên, đặt tên D gồm
+ #100 quan sát được sinh ngẫu nhiên biết nó tuân theo phân phối chuẩn với hai tham số
+# 0.5 và 0.5
+colnames(X) <- c("A", "B", "C")
+D = rnorm(100, mean = 0.5, sd = sqrt(0.5))
+data = data.frame(data, D)
+
+# Tính giá trị trung bình mẫu, ma trận tương quan mẫu và ma trận hiệp phương sai mẫu
+colMeans(data)
+cov(data)
+# Nx: các giá trị cov(x1, x2), cov(x2, x3), cov(x3, x1) đề là số dương -> có xu hướng di chuyển cùng chiều, các giá trị cov(X, D) -> D gần như độc lập với các biến còn lại
+cor(data)
+
+#(c) Vẽ biểu đồ phân tán của các biến và biểu đồ nhiệt của ma trận tương quan mẫu.
+pairs(data, panel = panel.smooth)
+# Nx:
+
+cor_melt <- melt(cor(data))
+ggplot(cor_melt, aes(Var1, Var2, fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+                       midpoint = 0, limit = c(-1,1), name="Correlation") +
+  theme_minimal() +
+  ggtitle("Biểu đồ nhiệt của ma trận tương quan mẫu")
+
+#(d) Kiểm tra tính chuẩn nhiều chiều.
+mshapiro.test(t(data))
+# Bài toán:
+#KL: > 0.05 -> Chấp nhận H0. -> chuẩn nhiều chiều
+
+```
+
+```{r}
+# Bài 6: 
+# Tập dữ liệu Smartket trong thư viện ISLR gồm 9 biến số được đo trong 1250 thời
+# điểm từ năm 2001 đến 2005 của thị trường chứng khoán S&P. Xét vecto X gồm các biến
+# định lượng trong tập dữ liệu.
+
+library(ISLR)
+data("Smarket")
+head(Smarket)
+str(Smarket)
+
+#  Tính giá trị trung bình mẫu, ma trận tương quan mẫu và ma trận hiệp phương sai
+# mẫu của X.
+X <- Smarket[, c("Lag1", "Lag2", "Lag3", "Lag4", "Lag5", "Volume", "Today")]
+colMeans(X)
+cov(X)
+cor(X)
+
+
+#  Vẽ biểu đồ phân tán của các biến và biểu đồ nhiệt của ma trận tương quan mẫu của X.
+pairs(X, panel = panel.smooth)
+
+cor_melt <- melt(cor(X))
+
+ggplot(cor_melt, aes(Var1, Var2, fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+                       midpoint = 0, limit = c(-1,1), name="Correlation") +
+  theme_minimal() +
+  ggtitle("Biểu đồ nhiệt ma trận tương quan mẫu")
+#  Kiểm tra tính chuẩn nhiều chiều của X.
+mshapiro.test(t(X[1:500,])) 
+
+# Có sự khác biệt giữa lợi nhuận trung bình một ngày trước và ba ngày trước ngày đang xét không
+t.test(X$Lag1, X$Lag3, paired = TRUE) # Note câu này (chưa ổn)
+
+# Lợi nhuận trung bình tại ngày đang xét và các ngày trước đó có thực sự khác 0 không?
+t.test(X$Today, mu = 0) # Note câu này (chưa ổn)
+
+# Kiểm định xem có sự khác biệt giữa năm 2004 và 2005 về lợi nhuận trung bình tại ngày đang xét và các ngày trước đó không?
+t.test(Today ~ Year, data = subset(Smarket, Year %in% c(2004, 2005))) # Note câu này (chưa ổn)
 
 ```

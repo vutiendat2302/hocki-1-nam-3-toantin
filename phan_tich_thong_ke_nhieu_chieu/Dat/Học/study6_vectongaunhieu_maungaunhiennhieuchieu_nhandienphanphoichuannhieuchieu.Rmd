@@ -14,7 +14,7 @@ output: html_document
 ```{r}
 # Nhận dạng dữ liệu có phân phối chuẩn hay không đượ thực hiện qua 2 bước:
 # BƯớc 1: Xem từng biến trong dữ liệu có phân bố chuẩn hay không?
-candy = read.table("C:\\Users\\admin\\Downloads\\candy.txt", header = T)
+candy = read.table("D:\\hoc_ki_1_nam_hoc_2025_2026\\phan_tich_thong_ke_nhieu_chieu\\Dat\\Học\\candy.txt", header = T)
 head(candy)
 dim(candy)
 colMeans(candy[, -1])

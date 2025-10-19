@@ -115,7 +115,6 @@ cov(X) #Ma trận hiệp phương sai mẫu: cho biến mối quan hệ giữa t
 
 cor(X) #Ma trận tương quan mẫu, nằm trong khoảng [-1, 1]. Là phiên bản chuẩn hóa của hiệp phương sai, nên không phụ thuộc vào đơn vị đo
 #Ngoài ra, ta có thể sử dụng gói lệnh mnormt như sau:
-head(x)
 
 # Ma trận tương quan mẫu được sử dụng nhiều hơn để xem xét các biến vì không phụ thuộc và đơn vị đo và xác định r
 ```
