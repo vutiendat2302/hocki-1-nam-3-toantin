@@ -1,0 +1,94 @@
+---
+title: "Bài tập tuần 8"
+author: "Nguyễn Thị Hiền Trang"
+date: "2025-10-24"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Câu 1
+
+```{r}
+library(datasets)
+data("USJudgeRatings")
+head(USJudgeRatings)
+#(1) Thực hiện phân tích thành phần chính trên tập dữ liệu, hãy cho biết nếu dùng 5 thành
+#phần chính đầu thì tỉ lê dữ liệu là bao nhiêu?
+pc <- princomp(USJudgeRatings, cor = TRUE)
+summary(pc)
+
+# Tính tỉ lệ phương sai từng thành phần và tỉ lệ tích lũy
+var_explained <- pc$sdev^2 / sum(pc$sdev^2)
+cum_var <- cumsum(var_explained)
+
+# Hiển thị tỷ lệ tích lũy của 5 thành phần đầu tiên
+cum_var[5]
+
+#(2) Gọi 5 thành phần chính là Y1 đến Y5. Hãy cho biết biến "CONT" và "CFMG" đóng
+#góp bao nhiêu trong mỗi thành phần trên.
+loadings <- pc$loadings[,1:5]
+loadings[c("CONT","CFMG"),]
+
+#(3) Vẽ biểu đồ tỉ lệ các thành phần trong trường hợp phân tích trên tập dữ liệu và sử dụng
+#ma trận tương quan.
+plot(pc, type = "lines", main = "Scree plot (dùng ma trận tương quan)")
+
+#(4) Vẽ biểu đồ hai thành phần trong trường hợp sử dụng ma trận tương quan.
+biplot(pc,
+       col = c(2,4),
+       cex = c(.5, 1.25),
+       xlim = c(-.45,.45),
+       xlab = "First principal component",
+       ylab = "Second principal component",
+       main = "Biplot for investment allocations")
+
+
+```
+
+## Câu 2
+
+```{r}
+library(kdevine)
+data("wdbc")
+head(wdbc)
+
+#(1) Tiến hành tiền xử lý dữ liệu, bao gồm việc loại bỏ các cột không cần thiết và chuyển
+#đổi các biến phân loại thành biến số.
+wdbc_clean <- wdbc[,-1]
+wdbc_clean
+
+#wdbc_clean$Diagnosis <- ifelse(wdbc_clean$Diagnosis == "M", 1, 0)
+
+#(2) Chuẩn hóa dữ liệu để đảm bảo rằng tất cả các biến có cùng quy mô.
+X <- scale(wdbc_clean[,-1])
+summary(X)
+#(3) Tính toán ma trận hiệp phương sai và tìm giá trị riêng, véc-tơ riêng.
+cov_X <- cov(X)
+cov_X[1:5, 1:5]
+
+eigen_value <- eigen(cov_X)
+eigen_value$values[1:10]
+eigen_value$vectors[,1:5]
+
+#(4) Thực hiện PCA và phân tích kết quả. Sau đó, vẽ các biểu đồ liên quan đến PCA, bao
+#gồm biplot, biểu đồ tỷ lệ phương sai giải thích và biểu đồ phân tán các thành phần chính.
+pca <- princomp(X, cor = TRUE)
+summary(pca)
+
+biplot(pca,
+       col = c(2,4),
+       cex = c(.5, 1.25),
+       xlim = c(-.45,.45),
+       xlab = "First principal component",
+       ylab = "Second principal component",
+       main = "Biplot for wdbc")
+
+plot(X, type = "lines", main = "Biểu đồ tỷ lệ phương sai")
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

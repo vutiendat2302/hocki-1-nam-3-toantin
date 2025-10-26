@@ -1,0 +1,168 @@
+---
+title: "Tuần_7_phuongphaplamgiamsochieudulieu"
+author: "VuTienDat"
+date: "2025-10-24"
+output: html_document
+---
+
+## Phương pháp làm giảm số chiều dữ liệu
+
+```{r}
+
+#2. Phân tích giảm chiều dữ liệu từ bộ dữ liệu m chiều: X = (x1, ..., xm)
+# Phân tích thành phần chính và phân tích nhân tố
+#PTTPC: Y_i theo các X_j
+# PTNT: X_j theo các F_i
+# Mục đích: Xem các biến mới y_i và F_i độc lập và 
+# để giảm số chiều dữ liệu (từ m chiều giảm còn k chiều (k <= m)) mà lượng thông tin thu được vẫn đủ lớn (90%, 95%, 99%,...) (giữ được phần lớn phương sai của dữ liệu ban đầu)
+
+#2.1 Phân tích thành phần chính:
+# Để thực hiện phân tích thành phần chính trong R:I hàm princomp.
+# Ngoài ra thì tùy trường hợp ta sẽ sử dụng ma trận hiệp phương sai hoặc ma trận tương quan.
+# Ví dụ 1: Trong ví dụ này, ta có 1 ví dụ về các đề xuất phân bổ đầu tư
+# đến từ các tư vấn viên khác nhau.
+
+inverst = read.table("D:\\hoc_ki_1_nam_hoc_2025_2026\\phan_tich_thong_ke_nhieu_chieu\\Dat\\Học\\investment.txt", header = T)
+
+head(inverst)
+
+rownames(inverst)  = inverst$Manager # Kiểu như gán hay thay STT bởi các giá trị trong cột Manager rồi mình sẽ xóa cột manager
+inverst = inverst[, -1] # bỏ đi cột manager
+colnames(inverst) = c("S.US", "S.U.US","S.Dev.","B.US","B.Non.US","B.Dev","A.Na","A.C") # Đổi, gán tên cho các cột trong bảng inverst
+
+head(inverst) # Dữ liệu chỉ gồm các biến định lượng, tên hàng là tên tư vấn viên
+
+# Phân tích thành phần chính:
+# Cho vector x có cov(x) = sigma. Giả sử (λ1, e1),...(λk, ek) là k cặp giá trị riêng và vecto riêng
+# của Sigma sao cho λ1 >= λ2 >=...>=λk. Khi đó thành phần chính thứ i của cặp vector X #được xác định bởi: Yí = e_i' X, 1 = 1 ÷ k, và với việc chọn như vậy, ta có:
+# D(Y_i) = 1_i, cov(Yi, Yj) = 0, v_i,j = 1 / k
+# sum(D(Xi)) = sum (D(Yi)) = λ1 + ... + λk
+
+#a. Xét trên tập dữ liệu:
+pc = princomp(inverst) #== princomp(invest, cor = FALSE)
+# Tự động tính ma trận hiệp phương sai của inverst
+# covmat = cov(inverts)
+
+# cor = F, R sẽ không chuẩn hóa dữ liệu, PCA được thực hiện trên ma trận Hiệp Phương Sai
+
+# Xem xét với cov = 1/n * sum((y - y_)^2)
+#computes eigenvalues and eigenvectors and presents these in a suitable format
+s = summary(pc)
+s #Sd = standard deviations = sqrt(λ1) >=...>= sqrt(λ8) với λi là gtr của ma trận hiệp phương sai
+s$sdev #SD(Yi) gần đúng == sqrt(λi)
+#Tính sqrt(λi)
+sqrt(eigen(cov(inverst))$values) #sqrt(λi) #Kiểm tra kết quả
+
+#KL: có thể giảm số chiều từ 8 xuống 6 hoặc 4 mà vẫn giữ lại trên 90% lượng thông tin
+
+# SD: Độ lệch chuẩn của từng thành phần chính sqrt(lamdai). Thành phần chính nào có SD lớn thì mang nhiều thông tin hơn
+# Prop of var: Tỷ lệ phương sai mà mỗi thành phần chính giải thích trong toàn bộ dữ liệu
+# Cum prop: Tỉ lệ phương sai tích lũy đến thành phần thứ i. Dùng để chọn số chiều K cần giữ lại
+
+# invest - matrix(rep(colMeans9invest), nrow(invest)), nrow = nrow(invest), byrom = T,
+# princomp(cov(invenst - matrix(rep(colmeans(invenst), nrow(invest)), nrow = neow(invest)))
+
+help("princomp")
+# b. Xét trên ma trận hiệp phương sai của tập dữ liệu: cov=1/(n-1)*sum(y-y_h)
+pcacov = princomp(covmat = cov(inverst))
+# Tự truyền vào dữ liệu hiệp phương sai -> covmat
+summary(pcacov)
+
+#Đưa ra phương sai của TP chính và so sánh với gtr của mt hpsai của x.
+#SD(Yi) == sqrt(λi)
+##Proportion of variance = tỷ lệ tích lũy, chỉa ra tỉ lệ lượng thông tin.
+#Cumulative propotion == tỷ lệ tích lũy, chỉ ra tỉ lệ lượng thông tin
+
+
+
+
+
+```
+
+```{r}
+#2. Thành phần chính đầu tiên giải thích hơn 80% thông tin bộ dữ liệu ban đầu:
+# Tải trọng: giữa data và cov(data) xuất ra giống nhau
+pc$loadings
+pcacov$loadings #factor loadingsL ma trận tải trọng: PC_i = Y_i = e_i' X
+#mỗi cột trong loadings là một vector riêng của ma trận hpsai của X
+#những giá trị nhỏ thì được xấp xỉ 0 và ko được biểu diễn trong ma trận tải trọng
+
+# So sánh tải trọng (loadings):
+# => Kết quả giống nhau: PCA trên data hay cov không ảnh hưởng đến hướng của các vecto riêng 
+
+eigen(cov(inverst))$vectors #e_i 
+summary(pcacov, loadings = TRUE)
+
+
+#Biểu diễn tpc theo x
+#ví dụ: PC1 = Y1 = .706*S.US + .114*B.US - .109*B.N.US - .686*A. Na
+#TPC đầu tiên: biểu thị sự khác biệt giữa múc phân bổ được đề xuất #cho S.US và A.Native (múc tải có độ lớn ngang nhau nhưng trái dấu)
+#TPC thứ hai: gần như được tạo thành từ B.US;
+#trực giao với TPC đầu tiên do được tạo thành từ các thông tin khác nhau
+
+# CT cơ bản: PCi​=ei′​X
+# Mỗi thành phần chính là tổ hợp tuyến tính của các biến gốc, tọng số chính là tải trọng(loadings)
+# PC1 = 0.706*S.US + 0.114*B.US - 0.109*B.N.US - 0.686*A.Native
+# PC1 thể hiện sự đối lập giữa S.US và A.Native
+
+
+# Dấu +, - cho biết chiều ảnh hưởng:
+# Cùng dấu + -> hai biến tăng hoặc giảm cùng nhau
+# ngược lại
+
+# Mỗi thành phần chính là một trục trọng không gian dữ liệu
+# Các trục này được chọn sao cho vuông góc với nhau
+
+
+```
+
+```{r}
+# bipblot: Vẽ cho data (loadings như cov) hoặc cor
+# Biểu đồ hiển thị cùng lúc các điểm dữ liệu và các biến gốc trong không gian PCA
+
+pc <- princomp(inverst)
+biplot(pc, col = c(2,4),
+       cex = c(.5,1.25),#màu và độ lớn của quan sát và biên
+       xlim = c(-.45, .45),
+       xlab = "First principal component",
+       ylab = "Second principal component",
+       main = "Biplot for investment allocations") 
+max(inverst$S.US)
+inverst["LeggMason",]$S.US
+inverst["HarrisPrivateBank",]$S.US
+inverst["HighmountCapital",]$B.US
+
+#Do khi sử dụng princomp(covmat = cor(invest)) trong kết quả ko ghi nhận các quan
+#(NA obser...) nên lệnh vẽ biplot(princomp(covmat=cor(invets)),...) ko hoạt động
+
+#screeplot
+screeplot(pc, col = "red", pch = 16, type = "lines", cex = 2, lwd = 2)
+screeplot(pcacov, col = "red", pch = 16, type = "lines", cex = 2, lwd = 2)
+
+#Data 2: Kuiper Belt Objects(0.227-214)
+#Xem xét về việc sd cor bởi vì: 1 TPC gthich % lên  bộ dữ liệu
+
+#c Phân tích trên ma trận tương quan
+princomp(covmat = cor(inverst))
+princomp(inverst, cor=TRUE)
+
+# Khi ta dùng cov thì mức độ biến thiên chênh lệch nhiều, -> cor thì dữ liệu được đưa về cùng thang đo (0, 1) -> lúc này pca không bị lệch bởi độ lớn của biến nữa
+
+# C1:
+summary(princomp(covmat = cor(inverst)),
+        loadings = TRUE)
+#C2:
+summary(princomp(inverst, cor = TRUE),
+        loadings = TRUE)
+
+
+biplot(princomp(inverst, cor = TRUE),
+       col = c(2,4),
+       cex = c(.5,1.25),
+       xlim = c(-.45,.45),
+       xlab = "First principal component",
+       ylab = "Second principal component",
+       main = "Biplot for investment allocations")
+
+
+```

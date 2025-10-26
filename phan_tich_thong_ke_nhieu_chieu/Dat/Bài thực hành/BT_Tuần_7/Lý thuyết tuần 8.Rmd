@@ -1,0 +1,114 @@
+---
+title: "Lý thuyết tuần 8"
+author: "Nguyễn Thị Hiền Trang"
+date: "2025-10-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R 
+
+```{r}
+#2. Phần tích giảm chiều dữ liệu từ bộ dư liệu m chiều: X =(x1, ...,Xm)'
+#Phân tích thành phần chính và phân tích nhân tố
+#PTTPC: Y_i theo các Xj
+#PTNT: X_j theo các F_i
+#Mục đích: các biến mới y_i, F_i độc lập và
+#đề giám số chiều dữ liệu (từ m chiều giảm còn k chiều (k <= m)) mà lượng thông
+#tin thu được vẫn đủ Tón (90%, 95%, 99%, •..) .
+
+#2.1 Phân tích thành phần chính
+#Để thực hiện phần tích thành phần chính trong R hàm princomp.
+# princomp: principal components Analysis
+#Ngoài ra thì tùy trường hợp thì ta sẽ sử dụng ma trận hiệp phương sai hoặc #ma trận tương quan.
+#Ví dụ 1: Trong ví dụ này, ta có 1 ví dụ về các đề xuất phân bổ đầu tư
+#đến từ các tư vấn viên khác nhau.
+invest = read.table("T:\\Uni\\Phân tích thống kê nhiều chiều\\investment.txt",
+                     header = TRUE)
+head(invest)
+rownames(invest) = invest$Manager
+invest = invest[,-1]
+colnames(invest) = c("S.US", "S.U.US","S.Dev.","B.US","B.Non.US","B.Dev","A.Na","A.C")
+head(invest) #dữ liệu chỉ gồm các biến định lượng lg, tên hàng là tên tư vấn viên 
+#PHÂN TÍCH THÀNH PHẦN CHÍNH
+#cho vector x có cov(x) = sigma. Giả sử (λ1, e1),...(λk, ek) là k cặp gtr và vtr
+#của sigma sao cho λ1 >= λ2 >=...>=λk. Khi đó thành phần chính thứ i của cặp vector X #được xác định bởi: Yí = e_i' X, 1 = 1 ÷ k, và với việc chọn như vậy, ta có
+#D (Yi) = 1_i; cov(Yi, Yj ) = 0, vi, j= 1 ÷ k.
+# sum(D(Xi)) = sum (D(Yi)) = λ1 + ... + λk
+#a. Xét trên tập dũ liệu
+pc <- princomp (invest) #== princomp(invest, cor = FALSE)
+# cor = F, R sẽ không chuẩn hóa dữ liệu, PCA được thực hiện trên ma trận Hiệp Phương Sai
+
+#xem xét với cov = 1/n * sum((y - y_)^2)
+#computes eigenvalues and eigenvectors and presents these in a suitable format
+s = summary(pc)
+s #SD = standard deviations = sqrt(λ1) >=...>= sqrt(λ8) với λi là gtr của ma trận hiệp phương sai
+s$sdev #SD(Yi) gần đúng == sqrt(λi) # Standard deviations 
+
+#Tính sqrt(λi)
+sqrt(eigen(cov(invest))$values) #sqrt(λi)
+
+#b. Xét trên ma trận hiệp phương sai của tập dữ liệu: cov=1/(n-1)*sum(y-y_h)
+pcacov = princomp(covmat = cov(invest))
+summary(pcacov)
+#Đưa ra phương sai của TP chính và so sánh với gtr của mt hpsai của x.
+#SD(Yi) == sqrt(λi)
+##Proportion of variance = tỷ lệ tích lũy, chỉa ra tỉ lệ lượng thông tin.
+#Cumulative propotion == tỷ lệ tích lũy, chỉ ra tỉ lệ lượng thông tin
+
+#2. TPC đầu tiên giải thích hơn 80% thôgn tin bộ dữ liệu ban đầu 
+#Tải trọng: giữa data và cov(data) xuất ra giống nhau
+pc$loadings
+pcacov$loadings #factor loadingsL ma trận tải trọng: PC_i = Y_i = e_i' X
+#mỗi cột trong loadings là một vector riêng của ma trận hpsai của X
+#những giá trị nhỏ thì được xấp xỉ 0 và ko được biểu diễn trong ma trận tải trọng
+eigen(cov(invest))$vectors #e_i 
+summary(pcacov, loadings = TRUE)
+#Biểu diễn tpc theo x
+#ví dụ: PC1 = Y1 = .706*S.US + .114*B.US - .109*B.N.US - .686*A. Na
+#TPC đầu tiên: biểu thị sự khác biệt giữa múc phân bổ được đề xuất #cho S.US và A.Native (múc tải có độ lớn ngang nhau nhưng trái dấu)
+#TPC thứ hai: gần như được tạo thành từ B.US;
+#trực giao với TPC đầu tiên do được tạo thành từ các thông tin khác nhau
+
+#screeplot
+screeplot(pc, col = "red", pch = 16, type = "lines", cex = 2, lwd = 2)
+screeplot(pcacov, col = "red", pch = 16, type = "lines", cex = 2, lwd = 2)
+
+#biplot: ve cho data(loadings nhu cov) hoac cor
+pc <- princomp(invest)
+biplot(pc, col = c(2,4),
+       cex = c(.5,1.25),#màu và độ lớn của quan sát và biên
+       xlim = c(-.45, .45),
+       xlab = "First principal component",
+       ylab = "Second principal component",
+       main = "Biplot for investment allocations") 
+max(invest$S.US)
+invest["LeggMason",]$S.US
+invest["HarrisPrivateBank",]$S.US
+invest["HighmountCapital",]$B.US
+#Do khi sử dụng princomp(covmat = cor(invest)) trong kết quả ko ghi nhận các quan
+#(NA obser...) nên lệnh vẽ biplot(princomp(covmat=cor(invets)),...) ko hoạt động
+
+#Data 2: Kuiper Belt Objects(0.227-214)
+#Xem xét về việc sd cor bởi vì: 1 TPC gthich % lên  bộ dữ liệu
+
+#c Phân tích trên ma trận tương quan
+princomp(covmat = cor(invest))
+princomp(invest, cor=TRUE)
+summary(princomp(covmat = cor(invest)),
+        loadings = TRUE)
+summary(princomp(invest, cor = TRUE),
+        loadings = TRUE)
+biplot(princomp(invest, cor = TRUE),
+       col = c(2,4),
+       cex = c(.5,1.25),
+       xlim = c(-.45,.45),
+       xlab = "First principal component",
+       ylab = "Second principal component",
+       main = "Biplot for investment allocations")
+```
+
+
