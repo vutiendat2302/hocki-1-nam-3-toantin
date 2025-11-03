@@ -377,4 +377,13 @@ t.test(X$Today, mu = 0) # Note câu này (chưa ổn)
 # Kiểm định xem có sự khác biệt giữa năm 2004 và 2005 về lợi nhuận trung bình tại ngày đang xét và các ngày trước đó không?
 t.test(Today ~ Year, data = subset(Smarket, Year %in% c(2004, 2005))) # Note câu này (chưa ổn)
 
+data_2004 = subset(Smarker, Year = 2004)[, c("Today", "Lag1", "Lag2", "Lag3", "Lag4", "Lag5")]
+
+data_2005 = subset(Smarket, Year= 2005)[, c("Today", "Lag1", "Lag2", "Lag3", "Lag4", "Lag5")]
+dim(data)
+head(data_2004)
+head(data_2005)
+HotellingsT2(data_2004, data_2005, paired = T)
+HotellingsT2(data_2004[, c("Today", "Lag1", "Lag2", "Lag3", "Lag4", "Lag5")], data_2005[, c("Today", "Lag1", "Lag2", "Lag3", "Lag4", "Lag5")], paired = T)
+
 ```
