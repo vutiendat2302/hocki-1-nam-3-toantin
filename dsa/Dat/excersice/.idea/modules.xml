@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/week2/baitap1/baitap1.iml" filepath="$PROJECT_DIR$/week2/baitap1/baitap1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/week2/baitap2/baitap2.iml" filepath="$PROJECT_DIR$/week2/baitap2/baitap2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/week2/baitap3/baitap3.iml" filepath="$PROJECT_DIR$/week2/baitap3/baitap3.iml" />
+      <module fileurl="file://$PROJECT_DIR$/week2/baitap7/baitap7.iml" filepath="$PROJECT_DIR$/week2/baitap7/baitap7.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/excersice.iml" filepath="$PROJECT_DIR$/.idea/excersice.iml" />
+      <module fileurl="file://$PROJECT_DIR$/week3/linkedlist/linkedlist.iml" filepath="$PROJECT_DIR$/week3/linkedlist/linkedlist.iml" />
+      <module fileurl="file://$PROJECT_DIR$/week2/study/study.iml" filepath="$PROJECT_DIR$/week2/study/study.iml" />
+      <module fileurl="file://$PROJECT_DIR$/week3/week3.iml" filepath="$PROJECT_DIR$/week3/week3.iml" />
+    </modules>
+  </component>
+</project>
