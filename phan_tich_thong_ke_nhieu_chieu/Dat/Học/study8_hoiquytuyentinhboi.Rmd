@@ -1,0 +1,153 @@
+---
+title: "hoiquytuyentinhboi"
+author: "VuTienDat"
+date: "2025-11-14"
+output: html_document
+---
+
+### Hồi quy tuyến tính bội
+
+```{r}
+?mtcars
+model = lm(mpg ~ wt + cyl + hp, data = mtcars)
+
+# Xây dựng mô hình hồi quy tuyến tính bội của mpg theo wt + cyl + hp.
+(s = summary(model))
+#1. Đưa ra phương trình hồi quy tuyến tính biểu diễn mpg theo các biến wt, cyl, và hp.
+
+# mpg = 38.75179 - 3.16697* wt - 0.94162 * cyl - 0.01804 * hp
+
+#2. CÁc biến độc lập có ý nghĩa trong việc giải thích mpg không?
+# Xét mô hình: mpg = a0 + a1 * wt + a2 * cyl + a3 * hp
+# Bài toán: a_i = 0 với H1: a_i != 0 (i = 1,2,3)
+# Nếu Pr(|t|) = p-value thì bác bỏ H0.
+# Có thể nói biến độc lập tương ứng có ý nghĩa trong viejc giải thích mpg
+# Dựa vào kết quả của summary(model), thay chỉ có biến wt có ý nghĩa ...
+
+#3. Điều kiện về phần dư có thỏa mẫn không ?
+e = model$residuals
+shapiro.test(e)
+#H0: Phần dư tuân theo pp chuẩn với H1: phần dư không tuân theo phân phối chuẩn 
+# Do p-value = 0.0525 > 0.05 nên chưa đủ cơ sở để bác bỏ H0.
+# Có thể nói phần dư tuân theo phân phối chuẩn
+t.test(e) #H0: E(e) = 0 với H1: E(e) != 0
+# Do p-value = 1> 0.05 nên chưa đủ cơ sở để bác bỏ H0.
+# Với myn 5%, có thể nói gttb của phần dư bằng 0.
+# Vậy điều kiện được thỏa mãn
+
+#4. Tìm KTC 99% cho các hệ số trong mô hình 
+confint(model, level = 0.99)
+
+
+#5. Dự đoán giá trị của mpg theo mô hình với wt = 2.890, cyl = 6, hp = 100.
+attach(mtcars)
+predict(model, newdata = data.frame(wt = 2.89, cyl = 6, hp = 100))
+
+#6. Tìm khoảng dự đoán 95% cho mpg theo mmoo hình với wt = 2.890, cyl = 6 và hp = 100
+predict(model, newdata = data.frame(wt = 2.89, cyl = 6, hp = 100), interval = "prediction", level = 0.95)
+
+# II. Lựa chọn mô hình phù hợp
+#1. Hai mô hình lồng nhau:
+mod = lm(mpg ~ cyl, data = mtcars)
+mod1 = lm(mpg ~ cyl + disp, data = mtcars)
+mod2 = lm(mpg~cyl + disp + hp, data = mtcars)
+summary(mod1)
+anova(mod, mod1) #H1: Sự thêm biến có ý nghĩa (Mod 1 phù hợp hơn mod)
+anova(mod1, mod2)
+
+#2. So sánh chỉ số AIC và BIC của các mô hình,có thể thông qua hàm step() 
+#sử dụng trực tiếp các hàm AIC() và BIC() để tính ra giátrị chỉ số trực tiếp (Dùng khi có mô hình cụ thể)
+# để so sánh các mô hình 
+# Giá trị AIC, BIC càng nhỏ thfi mô hình càng phù hợp.
+AIC(mod); AIC(mod1); AIC(mod2)
+BIC(mod); BIC(mod1); BIC(mod2)
+# Sử dụng thêm hàm step để tìm ra mô hình phù hợp nhất theo tiêu chuẩn AIC, BIC 
+# Trong các mô hình 1 biến,2 biến, ..., m biến
+# stepwise: forwar(thêm biến), backward(bớt biến), both(thêm và bớt biến):
+# tìm ra mô hình có chỉ số AIC nhỏ nhất
+# hàm step(): giá trị của k = 2, ứng với chỉ số AIC ban đầu.
+# nếu thay k = log(n) ta sẽ được chỉ số của BIC
+lm(mpg ~ 1, data = mtcars)
+lm (mpg ~ cyl, data = mtcars)
+lm (mpg ~ cyl + disp, data = mtcars)
+lm (mpg ~ , data = mtcars) # Mô hình đầy đủ
+
+# Tìm mô hình HQTT phù hợp nhất dựa và tiêu chuẩn AIC
+#step(): mpg theo 10 biến còn lại trong data mtcars
+# Hướng (method): forward, backward, both
+#a. forward: xuất phát từ mô hình đầu tiên(mô hình đơn giản nhất),
+# ví dụ: xét Y = a0 + e (0)
+# -> Thu được 1 giá trị AIC
+# -> Thêm 1 trong 10 biến vào mô hình (0): Y = a0 + a*xi + e(i = 1,2,..., 10)
+# -> Thu được 10 mô hình đơn biến dạng Y = a0 + ai*xi + e
+# -> Chọn mô hình mà có tiêu chuẩn AIC nhỏ nhất, ví dụ là Y = a0 + a1*x1 + e(1)
+# Thêm 1 trong 9 biến còn lại vào mô hình 1: Y = a0 + a1 * x1 + aj * xj + e
+# Thu được 9 mô hình có dạng Y = a0 + a1 * x1 + a2 * x2 + e
+# Chọn mô hình có tiêu chuẩn AIC nhỏ nhất, vid dụ là:
+# Y = a0 + a1 * x1 + a2 * x2 + e(2)
+# Tiếp tục đến khi thu được mô hình Y = a0 + a1*x1 +... + am*xm + e(m)
+# Khi thêm bất kỳ một biến nào vào mô hình (m) mà giá trị AIC thu được
+# đều lớn hơn giá trị AIC của mô hình (m) thì dừng lại.
+# Chọn mô hình (m) là mô hình cuối cùng.
+# b,c. backward, both: tương tự
+# step(object, scope, scale, direction)
+#object: mô hình bắt đầu: only/all/one/two/...
+# scope: fomula(all) / fomula(mô hình phức tạp nhất)
+# scale: lượng thoogn tin mong muốn được đưa ra: scale = 0
+# direction = c("forward", "backward", "both")
+only = lm(mpg ~ 1, data = mtcars); all = lm(mpg ~ ., data = mtcars)
+fw = step(only, formula(all), direction = "forward") # giải thích từng bước
+fw$anova # Các biến được chọn thêm vào mô hình so với mô hình only
+summary(fw) # Tóm tắt kết quả mô hình được chọn
+# từ mô hình ban đầu Y = a0 + e có AIC = 115.9
+# thêm 1 trong 10 biến vào mô hình thu được 10 mô hình hồi quy tt đơn
+# AIC tịa mô hình chứa biến wt là nhỏ nhất và bằng 73.2
+# Chọn mô hình: mgp = a0 + a1 * wt + e
+# Thêm 1 trong 9 biến còn lại thu được mô hình dạng mpg = ....
+# AIC min = 63.2 đặt tại moo hình mpg = a0 + a1 *wt + a2 * cyl + e
+# Thêm 1 trong 8 biến còn lại thu được mô hình dạng ...
+# AIC min = 62.7 đạt tại mô hình mpg = a0 + a1 *wt + a2 * cyl + a3 * hp + e
+# Dừng lai khi việc thêm 1 biến trong các lần sau không làm giảm AIC
+summary(fw)
+two =lm(mpg ~ cyl + disp, data= mtcars) # mô hình bắt đầu
+fw = step(two, formula(all), direction = "forward", trace = 0)
+# Xem xét mô hình đơn giản nhất là mô hình two
+# mpg = cyl + disp. thêm dần các biến vào mô hình two
+fw$anova
+summary(fw)
+
+#1. Tìm mô hình HQTT phù hợp nhất theo hướng backward
+# với mô hình ban đầu object là all hoặc five với 
+# five = lm (mpg ~ cyl + disp + hp + drat + wt)
+
+five = lm (mpg ~ cyl + disp + hp + drat + wt, data=mtcars)
+fw = step(five, formula(all), direction = "backward")
+summary(fw)
+
+#2. Tìm mô hình HQTT phù hợp nhất theo cả 2 hướng both
+# Với mô hình ban đầu object là only/all/three
+# Với three = lm(mpg~cyl + disp + hp)
+three = lm(mpg~cyl + disp + hp, data = mtcars)
+both = step(three, formula(all), direction = "both")
+summary(both)
+```
+
+```{r}
+library(MASS)
+
+#1. Đưa ra ước lượng các hệ số trong mô hình hồi quy tuyến tính của medv theo các biến
+#còn lại
+
+data(Boston)
+model = lm(medv ~ ., data = Boston)
+summary(model)
+
+#H0: Các hệ số ko có ý nghĩa
+#H1: Các hệ số có ý nghĩa
+*
+
+
+
+
+```
+
