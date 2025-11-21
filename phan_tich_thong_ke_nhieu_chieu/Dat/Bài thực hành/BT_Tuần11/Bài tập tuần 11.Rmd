@@ -1,0 +1,96 @@
+---
+title: "Bài tập tuần 11"
+author: "Nguyễn Thị Hiền Trang"
+date: "2025-11-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Bài 1
+
+```{r}
+library(MASS)
+data("Boston")
+#View(Boston)
+
+#1
+model = lm(medv ~ ., data = Boston)
+summary(model)
+#BT: H0: a_i = 0 vs H1: a_i != 0 (i = 1,2,3)
+#Neu Pr(|t|) = p-value < 0.05 thì bác bỏ H0.
+#Nếu p-value < 0.05 => bác bỏ H0 
+res <- residuals(model)
+t.test(res, mu = 0)
+#BT: H0: res = 0 vs H1: res != 0
+#p-value = 1 > 0.05 => ko đủ điều kiện bác bỏ H0 
+#=> phần dư có thể tuân theo pp chuẩn với giá trị trung bình bằng 0
+
+#2.
+?step
+only = lm(medv ~ 1, data = Boston)
+fw = stepAIC(only, formula(model), direction = "forward")
+fw
+summary(fw)
+
+bw = stepAIC(model, direction = "backward", trace = FALSE)
+bw
+summary(bw)
+
+#3.
+anova(fw, bw,  test = "F")
+
+#4.
+formula(fw)
+
+#5.
+summary(bw)    # kiểm tra hệ số, p-values
+res_b <- residuals(bw)
+t.test(res_b, mu = 0)
+shapiro.test(sample(res_b, 500))  # hoặc shapiro.test(res_b) nếu muốn
+qqnorm(res_b); qqline(res_b)
+
+```
+
+## Bài 2
+
+```{r}
+library(ISLR)
+data("Credit")
+
+#1
+vars <- Credit[, c("Limit","Income","Rating","Cards","Age","Education")]
+cor(vars)    # ma trận tương quan
+pairs(vars)  # biểu đồ phân tán nếu muốn
+
+#2.
+full_mod <- lm(Limit ~ Income + Rating + Cards + Age + Education, data = Credit)
+summary(full_mod)
+
+library(MASS)
+step_mod <- stepAIC(full_mod, direction = "backward", trace = FALSE)
+summary(step_mod)
+
+confint(step_mod, level = 0.95)
+
+#4.
+summary(step_mod)$r.squared
+summary(step_mod)$adj.r.squared
+
+
+#5.
+new_data <- data.frame(
+  Income = 60,
+  Rating = 300,
+  Cards = 5,
+  Age = 30,
+  Education = 12
+)
+
+predict(step_mod, newdata = new_data, interval = "prediction", level = 0.90)
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

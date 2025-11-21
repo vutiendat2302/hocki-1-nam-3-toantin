@@ -1,0 +1,148 @@
+---
+title: "BT_Tuan_11"
+author: "VuTienDat"
+date: "2025-11-20"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document: default
+mainfont: Times New Roman
+---
+
+### Hồi quy tuyến tính bội
+
+```{r}
+# Bài 1:
+library(MASS)
+data("Boston")
+View(Boston)
+dim(Boston)
+
+attach(Boston)
+
+#1: 
+#- Đưa ra ước lượng hệ số trong mô hình hqtt của medv
+model = lm(medv ~ ., data = Boston)
+summary(model)
+# Phương trình hqtt:
+# medv = 36.46 - 0.108 * crim + 0.046 * zn + ... - 0.5 * lstat
+
+# - Kiểm định các hệ số trong mo hình hqtt có thực sự khác 0 kohoong
+# Xét bài toán:
+# H0: ai = 0 (Các hệ số ko có ý nghĩa)
+# H1: ai != 0 (Các hệ số có ý nghĩa)
+# i = 1,2,3...,14
+# Ta thấy hệ số của 2 biến indus và age có pr(|t|) > 0.05 (0.738, 0.958) nên 2 biến này không có ý nghĩa thống kê, các biến còn lại có ý nghĩa thống kê
+
+#- Phân dư có tuân theo phân phối chuẩn với giá trị trung bình = 0
+e = model$residuals
+shapiro.test(e)
+# Xét bài toán: 
+#H0: e tuân theo pp chuẩn
+#H1: ngược lại
+#Do p_value < 2.2*e^(-16) < 0.05 nên bác bỏ H0
+#KL: Với mức ý nghĩa 5%, e không tuân theo pp chuẩn
+
+wilcox.test(e, mu = 0)
+# Xét bài toán: 
+# H0: E(e) = 0 
+# H1: E(e) != 0
+#KL: Với mức ý nghĩa 5%, E(e) = 0
+#=> điều kiện về phần dư không thỏa mãn
+#p-value = 0.007 < 0.05 => bác bỏ H0 
+#=> phần dư tuân theo pp chuẩn với giá trị trung bình != 0
+
+
+#2. 
+# Đưa ra mô hình hqtt "forward" tốt nhất theo tiêu chuẩn AIC
+only = lm(medv ~ 1, data = Boston)
+all = lm(medv ~ ., data = Boston)
+fw = step(only, formula(all), direction = "forward")
+fw$anova
+summary(fw)
+
+# Đưa ra mô hình hqtt "backward" tốt nhất theo tiêu chuẩn AIC
+bw = step(all, formula(only), direction = "backward")
+bw$anova
+summary(bw)
+
+# Kiểm định việc thêm biến vào mô hình phức tạp hơn có ý nghĩa không ???
+# Bài toán: H0: Thêm biến vào không có ý nghĩa
+#H1: Thêm biến vào có ý nghĩa
+anova(fw, bw)
+
+# Do p-value < 0.05 nên bác bỏ H0
+# KL: Với myn 5%, việc thêm biến có ý nghĩa
+
+#3. Khi phân tích "forward" nếu biến medv được biểu diễn theo 2 biến thì đó là những biến nào
+names(coef(fw))
+#Biến medv biểu diễn theo lstat và rm
+
+#4.Khi phân tích “backward”, kiểm định xem các hệ số trong mô hình hồi quy tuyến tính
+#thu được có thực sự khác 0 không? Phần dư có tuân theo phân phối chuẩn #với giá trị trung bình bằng 0 không
+
+e = bw$residuals
+shapiro.test(e)
+#H0: e tuân theo pp chuẩn
+#H1: Ngược lại
+#Do p_value < 2.2*e^(-16) < 0.05 nên bác bỏ H0
+#KL: Với mức ý nghĩa 5%, e không tuân theo pp chuẩn
+wilcox.test(e)
+#H0: E(e) = 0
+#H1: Ngược lại
+#Do p_value = 1 > 0.05 nên chưa đủ cơ sở bác bỏ H0
+#KL: Với mức ý nghĩa 5%, E(e) = 0
+#=> điều kiện về phần dư không thỏa mãn
+```
+
+```{r}
+# Bài 2:
+library(ISLR)
+data("Credit")
+View(Credit)
+
+#1. Biến Limit có tương quan tuyến tính với những biến nào?
+Credit = Credit[, -c(1, 8, 9, 10, 11)]
+sapply(colnames(Credit), function(x) {
+  cor.test(Credit$Limit, Credit[[x]])
+})
+
+# Bài toán: 
+# H0: ri = 0 (Chưa có sự tương quan tuyến tính)
+# H1: ri != 0 (Có sự tương quan tuyến tính)
+# KL: Limit có tương quan tuyến tính với Income, Rating, Age do p-value < 0.05
+
+#2.  Giải thuật từng bước "step backward" để tìm mô hình biểu diễn Limit theo các biến còn lại phù hợp nhất theo tiêu chuẩn AIC. Tìm ước lượng và khoảng tin cậy 95% của các hệ số trong mô hình thu được
+all = lm(Limit ~ ., data = Credit)
+bw = step(all, formula(all), direction = "backward")
+bw$anova
+summary(bw)
+
+#- Mô hình ban đầu gồm tất cả các biến giải thích (ID, Income, Rating, Cards, Age, Education)
+#AIC = 4035.11
+#Khi loại Age: AIC giảm từ 4035.11 → 4033.1
+#RSS giảm nhẹ → mô hình tốt hơn
+#Vậy Age bị loại
+#Loại ID → AIC giảm tiếp → loại
+#Loại Income → AIC giảm → loại
+#Loại Education → AIC giảm nhẹ
+#Nhưng sau khi loại, mô hình tối ưu dừng lại ở:
+#AIC = 4029.0
+#Không thể loại thêm biến nào nữa mà AIC giảm
+
+#- Tìm ước lượng và khoảng tin cậy 95% của các hệ số trong ô hình thu dược
+confint(bw, level = 0.95)
+
+#3. Các biến giải thích được chọn có tác động như thế nào đến giới hạn thẻ tín dụng?
+# Bài toán: 
+#H0: ai = 0 (ko có ý nghĩa thống kê)
+#H1: ai != 0  (có ý nghĩa thống kê)
+# #Biến Rating, Cards có ý nghĩa thống kê với biến Limit
+
+#4. Tìm hệ số xác định của mô hình. Giải thích ý nghĩa
+
+#5.  Tìm khoảng dự đoán 90% cho giới hạn thẻ tín dụng của một khách hàng 30 tuổi, học 12 năm, có thu nhập 60 nghìn USD, xếp hạng tín dụng 300 và có 5 thẻ tín dụng
+predict(all, newdata = data.frame(Age = 30, Income = 60, Education = 12, Cards = 5, Rating = 300, Balance = 300), interval = "prediction", level = 0.9)
+#(-29466, 42417.37)
+
+```

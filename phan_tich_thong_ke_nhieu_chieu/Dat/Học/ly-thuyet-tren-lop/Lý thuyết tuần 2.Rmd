@@ -11,8 +11,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
- 
-
 ```{r}
 # Hàm mật độ: dnorm(x, mean, sd)
 dnorm(4, mean = 0, sd = 1)

@@ -172,7 +172,7 @@ biplot(princomp(inverst, cor = TRUE),
 # Để thực hiện phân tích nhân tố trong R, ta sử dụng lệnh factanal
 # Dưới đây là ví dụ về phân tích nhân tố
 # Kết quả của phép phân tích cho biết hệ số của từng nhân tố đống góp vào 
-hema = read.table("D:\\hocki-1-nam-3-toantin\\hocki-1-nam-3-toantin\\phan_tich_thong_ke_nhieu_chieu\\Dat\\Học\\hemangioma.txt", header = T)
+hema = read.table("D:\\hoc_ki_1_nam_hoc_2025_2026\\phan_tich_thong_ke_nhieu_chieu\\Dat\\Học\\hemangioma.txt", header = T)
 
 hema
 
@@ -206,7 +206,7 @@ factanal(hema, factors = 3)
 
 # Bài 2:
 # Xét theo: country, age(Hiện tại), sex
-life = read.csv("D:\\hocki-1-nam-3-toantin\\hocki-1-nam-3-toantin\\phan_tich_thong_ke_nhieu_chieu\\Dat\\Học\\Life.csv", header = T)
+life = read.csv("D:\\hoc_ki_1_nam_hoc_2025_2026\\phan_tich_thong_ke_nhieu_chieu\\Dat\\Học\\Life.csv", header = T)
 head(life)
 
 # Gán tên country thành tên các quan sát

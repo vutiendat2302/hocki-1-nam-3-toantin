@@ -1,0 +1,83 @@
+#Bài 1
+library(MASS)
+model = lm(medv ~ ., data = Boston)
+#(a)
+s = summary(model)
+s
+# Phương trình hồi quy: medv = 36.46 - 0.108 * crim + 0.046 * zn + ... - 0.5 * lstat
+# Kiểm định ý nghĩa thống kê các biến
+# Ta thấy hệ số của 2 biến indus và age lớn hơn 0.05 (0.738, 0.958) nên 2 biến này không có ý nghĩa thống kê, các biến còn lại có ý nghĩa thống kê
+confint(model)
+e = model$residuals
+shapiro.test(e)
+#H0: e tuân theo pp chuẩn
+#H1: Ngược lại
+#Do p_value < 2.2*e^(-16) < 0.05 nên bác bỏ H0
+#KL: Với mức ý nghĩa 5%, e không tuân theo pp chuẩn
+t.test(e)
+#H0: E(e) = 0
+#H1: Ngược lại
+#Do p_value = 1 > 0.05 nên chưa đủ cơ sở bác bỏ H0
+#KL: Với mức ý nghĩa 5%, E(e) = 0
+#=> điều kiện về phần dư không thỏa mãn
+#(b)
+only = lm(medv ~ 1, data = Boston)
+fw = step(only, formula(model), direction = "forward")
+fw$anova
+summary(fw)
+bw = step(model, formula(model), direction = "backward")
+bw$anova
+summary(bw)
+#(c)
+anova(fw, bw)
+#H0: Việc thêm biến không có ý nghĩa
+#H1: Ngược lại
+#Do p_value < 0.05 nên bác bỏ H0
+#Với myn 5%, việc thêm biến có ý nghĩa
+#(d)
+names(coef(fw))
+#Biến medv biểu diễn theo lstat và rm
+#(e)
+e = bw$residuals
+shapiro.test(e)
+#H0: e tuân theo pp chuẩn
+#H1: Ngược lại
+#Do p_value < 2.2*e^(-16) < 0.05 nên bác bỏ H0
+#KL: Với mức ý nghĩa 5%, e không tuân theo pp chuẩn
+t.test(e)
+#H0: E(e) = 0
+#H1: Ngược lại
+#Do p_value = 1 > 0.05 nên chưa đủ cơ sở bác bỏ H0
+#KL: Với mức ý nghĩa 5%, E(e) = 0
+#=> điều kiện về phần dư không thỏa mãn
+#Bài 2
+library(ISLR)
+View(Credit)
+Credit <- Credit[, -c(1, 8, 9, 10, 11)]
+View(Credit)
+#(1)
+sapply(colnames(Credit), function(x) {
+  cor.test(Credit$Limit, Credit[[x]])
+})
+#Limit có tương quan tuyến tính với Income, Rating, Age
+#(2)
+all = lm(Limit ~ ., data = Credit)
+bw = step(all, formula(all), direction = "backward")
+bw$anova
+summary(bw)
+#Mô hình ban đầu gồm tất cả biến giải thích (ID, Income, Rating, Cards, Age, Education)
+#AIC = 4035.11
+#Khi loại Age: AIC giảm từ 4035.11 → 4033.1
+#RSS giảm nhẹ → mô hình tốt hơn
+#Vậy Age bị loại
+#Loại ID → AIC giảm tiếp → loại
+#Loại Income → AIC giảm → loại
+#Loại Education → AIC giảm nhẹ
+#Nhưng sau khi loại, mô hình tối ưu dừng lại ở:
+#AIC = 4029.0
+#Không thể loại thêm biến nào nữa mà AIC giảm
+#(3)
+#Biến Rating, Cards có ý nghĩa thống kê với biến Limit
+#(5)
+predict(all, newdata = data.frame(Age = 30, Income = 60000, Education = 12, Cards = 5, Rating = 5), interval = "prediction", level = 0.9)
+#(-29466, 42417.37)

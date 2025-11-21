@@ -1,7 +1,6 @@
-# Bài tập tuần 2: Phân phối chuẩn 1 chiều: 
+# Bài tập tuần 2: Phân phối chuẩn 1 chiều:
 
 ## Câu 1:
-
 
 ```{r}
 # install.packages("MASS")

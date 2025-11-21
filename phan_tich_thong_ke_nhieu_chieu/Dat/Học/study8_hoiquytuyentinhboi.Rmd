@@ -17,12 +17,12 @@ model = lm(mpg ~ wt + cyl + hp, data = mtcars)
 
 # mpg = 38.75179 - 3.16697* wt - 0.94162 * cyl - 0.01804 * hp
 
-#2. CÁc biến độc lập có ý nghĩa trong việc giải thích mpg không?
+#2. Các biến độc lập có ý nghĩa trong việc giải thích mpg không?
 # Xét mô hình: mpg = a0 + a1 * wt + a2 * cyl + a3 * hp
 # Bài toán: a_i = 0 với H1: a_i != 0 (i = 1,2,3)
 # Nếu Pr(|t|) = p-value thì bác bỏ H0.
 # Có thể nói biến độc lập tương ứng có ý nghĩa trong viejc giải thích mpg
-# Dựa vào kết quả của summary(model), thay chỉ có biến wt có ý nghĩa ...
+# Dựa vào kết quả của summary(model), thấy chỉ có biến wt có ý nghĩa ...
 
 #3. Điều kiện về phần dư có thỏa mẫn không ?
 e = model$residuals
@@ -44,7 +44,10 @@ attach(mtcars)
 predict(model, newdata = data.frame(wt = 2.89, cyl = 6, hp = 100))
 
 #6. Tìm khoảng dự đoán 95% cho mpg theo mmoo hình với wt = 2.890, cyl = 6 và hp = 100
+? predict
 predict(model, newdata = data.frame(wt = 2.89, cyl = 6, hp = 100), interval = "prediction", level = 0.95)
+
+# interval = "prediction" : khoảng dự đoán, "confidence": khoảng tin cậy,
 
 # II. Lựa chọn mô hình phù hợp
 #1. Hai mô hình lồng nhau:
@@ -58,7 +61,7 @@ anova(mod1, mod2)
 #2. So sánh chỉ số AIC và BIC của các mô hình,có thể thông qua hàm step() 
 #sử dụng trực tiếp các hàm AIC() và BIC() để tính ra giátrị chỉ số trực tiếp (Dùng khi có mô hình cụ thể)
 # để so sánh các mô hình 
-# Giá trị AIC, BIC càng nhỏ thfi mô hình càng phù hợp.
+# Giá trị AIC, BIC càng nhỏ thì mô hình càng phù hợp.
 AIC(mod); AIC(mod1); AIC(mod2)
 BIC(mod); BIC(mod1); BIC(mod2)
 # Sử dụng thêm hàm step để tìm ra mô hình phù hợp nhất theo tiêu chuẩn AIC, BIC 
@@ -70,7 +73,7 @@ BIC(mod); BIC(mod1); BIC(mod2)
 lm(mpg ~ 1, data = mtcars)
 lm (mpg ~ cyl, data = mtcars)
 lm (mpg ~ cyl + disp, data = mtcars)
-lm (mpg ~ , data = mtcars) # Mô hình đầy đủ
+lm (mpg ~ ., data = mtcars) # Mô hình đầy đủ
 
 # Tìm mô hình HQTT phù hợp nhất dựa và tiêu chuẩn AIC
 #step(): mpg theo 10 biến còn lại trong data mtcars
@@ -101,11 +104,11 @@ fw$anova # Các biến được chọn thêm vào mô hình so với mô hình o
 summary(fw) # Tóm tắt kết quả mô hình được chọn
 # từ mô hình ban đầu Y = a0 + e có AIC = 115.9
 # thêm 1 trong 10 biến vào mô hình thu được 10 mô hình hồi quy tt đơn
-# AIC tịa mô hình chứa biến wt là nhỏ nhất và bằng 73.2
+# AIC tại mô hình chứa biến wt là nhỏ nhất và bằng 73.2
 # Chọn mô hình: mgp = a0 + a1 * wt + e
-# Thêm 1 trong 9 biến còn lại thu được mô hình dạng mpg = ....
-# AIC min = 63.2 đặt tại moo hình mpg = a0 + a1 *wt + a2 * cyl + e
-# Thêm 1 trong 8 biến còn lại thu được mô hình dạng ...
+# Thêm 1 trong 9 biến còn lại thu được mô hình dạng mpg = a0 + a1 * wt + a2 * xi2
+# AIC min = 63.2 đặt tại cyl,, mô hình mpg = a0 + a1 *wt + a2 * cyl + e
+# Thêm 1 trong 8 biến còn lại thu được mô hình dạng mpg  = a0 + a1 * wt + a2 * cyl + a3 * xi3
 # AIC min = 62.7 đạt tại mô hình mpg = a0 + a1 *wt + a2 * cyl + a3 * hp + e
 # Dừng lai khi việc thêm 1 biến trong các lần sau không làm giảm AIC
 summary(fw)
@@ -131,23 +134,3 @@ three = lm(mpg~cyl + disp + hp, data = mtcars)
 both = step(three, formula(all), direction = "both")
 summary(both)
 ```
-
-```{r}
-library(MASS)
-
-#1. Đưa ra ước lượng các hệ số trong mô hình hồi quy tuyến tính của medv theo các biến
-#còn lại
-
-data(Boston)
-model = lm(medv ~ ., data = Boston)
-summary(model)
-
-#H0: Các hệ số ko có ý nghĩa
-#H1: Các hệ số có ý nghĩa
-*
-
-
-
-
-```
-
