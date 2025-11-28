@@ -1,0 +1,169 @@
+---
+title: "VuTienDat"
+author: "VuTienDat"
+date: "2025-11-23"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document: default
+mainfont: Times New Roman
+---
+
+```{r}
+
+# Câu 1:
+#install.packages("gap")
+library(gap)
+
+library(MASS)
+data(hla)
+#str(hla)
+names(hla)
+
+
+#y la bien phan nhom
+#"DQR.a1" "DQR.a2" "DQA.a1" "DQA.a2" "DQB.a1" "DQB.a2" laf 6 dau hieu HLA
+
+hla <- hla[,-1]
+hla$y <- factor(hla$y)
+
+model_lda <- lda(y ~ ., data = hla)
+model_lda
+
+#Dự đoán và kiểm tra độ chính xác
+pred <- predict(model_lda)
+#pred
+table(Predict = pred$class, Real = hla$y)
+
+#?mean
+mean(pred$class == hla$y) #tạo ra một vector gồm true/false
+
+
+#=0.6752768 => mô hình dự đoán đúng 67,5% trong mẫu dữ liệu
+
+#VẼ BIỂU ĐỒ LDA1
+library(ggplot2)
+#dim(pred$x) #kiểm tra số trục phân biệt tối đa
+lda_df <- data.frame(
+  LDA1 = pred$x[,1],
+  y = hla$y
+)
+
+ggplot(lda_df, aes(y, LDA1, fill = y)) +
+  geom_boxplot(alpha = 0.7) + 
+  labs(title = "Phân biệt nhóm LDA",
+       x = "nhóm",
+       y = "LDA1") +
+  theme_minimal()
+
+
+```
+
+```{r}
+
+# Câu 2:
+
+library(MASS)
+data(iris)
+model_lda <- lda(Species~., data = iris)
+model_lda
+
+pred <- predict(model_lda)
+
+table(Predict = pred$class, Real = iris$Species)
+
+mean(pred$class == iris$Species)
+
+lda_df = data.frame(
+  LDA1 =pred$x[,1],
+  LDA2 = pred$x[,2],
+  Species = iris$Species
+)
+
+library(ggplot2)
+ggplot(lda_df, aes(LDA1, LDA2, color = Species)) +
+  geom_point(size = 3, alpha = 0.8) +
+  labs(title = "Đồ thị phân biệt LDA",
+       x = "LDA1",
+       y = "LDA2") +
+  theme_minimal()
+
+
+#HỆ số tải
+model_lda$scaling
+
+#LDA1 pân biệt setosa với 2 loài còn lại
+#LDA1 chủ yếu dựa vào kích thước cánh hóa
+#LDA2 phân biệt versicolor và virginica
+#LDA2 chủ yếu dựa vào bề rộng đài hoa
+
+#install.packages("GGally")
+#Đối chiếu với biểu đồ tọa độ song song
+library(GGally)
+
+ggparcoord(data = iris,
+          columns = 1:4,
+          groupColumn = 5,
+          scale = "std",
+          alphaLines = 0.5) +
+  theme_minimal() +
+  labs(title = "Biểu đồ tọa độ song song của dữ liệu iris")
+```
+
+```{r}
+# Câu 3:
+# install.packages("kernlab")
+# install.packages("fastDummies")
+
+library(kernlab)
+library(MASS)
+library(fastDummies)
+
+# Load dữ liệu
+data(promotergene)
+
+# Biến Y
+y <- promotergene$Class
+
+# Biến X là 57 cột giá trị a, c, g, t
+X <- promotergene[, -1]
+
+# One-hot encoding cho tất cả các biến base
+X_dummy <- fastDummies::dummy_cols(
+  X,
+  remove_first_dummy = TRUE,        # bỏ bớt 1 biến để tránh đa cộng tuyến
+  remove_selected_columns = TRUE    # không giữ lại cột ký tự ban đầu
+)
+
+# Kiểm tra dữ liệu sau khi mã hóa
+str(X_dummy)
+
+# LDA
+model <- lda(y ~ ., data = X_dummy)
+
+model
+
+# Dự đoán
+pred <- predict(model)$class
+accuracy <- mean(pred == y)
+accuracy
+
+lda_out <- predict(model)
+```
+
+```{r}
+# Câu 4:
+library(kernlab)
+data(spam)
+head(spam)
+#LDA
+lda_spam = lda(type ~ ., data = spam)
+print(lda_spam)
+
+#vecto trọng số
+lda_spam$scaling
+
+# 
+scores = predict(lda_spam)$x
+plot(scores, col = "red", pch = 16, cex = .3)
+```
